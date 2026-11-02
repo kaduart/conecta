@@ -59,13 +59,14 @@ Webhook opcional ao CRM do escritório: evento `auditoria.concluida`, header `X-
 - Confirmar as rotas da Evolution API/Z-API na versão contratada.
 
 ## Branches e deploy
-- `develop`: desenvolvimento. Todo push roda o CI (testes da API e build do front) e a Vercel gera uma URL de preview.
-- `main`: produção. Entra só por PR vindo da `develop`. Quando o merge acontece, a Vercel publica sozinha, pela integração Git dela, sem secrets no GitHub.
+- `develop`: desenvolvimento. Todo push roda o CI (testes da API e build do front).
+- `main`: produção. Entra só por PR. Quando o merge acontece, `.github/workflows/deploy.yml` roda os testes e publica o front direto na Vercel.
 
-### Configurar uma vez na Vercel
-1. Add New > Project > importar `kaduart/conecta`.
-2. Root Directory: `web`. Framework: Vite (detecta sozinho). Production Branch: `main`.
-3. Variável `VITE_API_URL` (opcional até a API estar no ar): a URL pública da API, por exemplo `https://api.recupera.app/v1`.
+### Configurar uma vez
+1. Gere um token em vercel.com/account/tokens.
+2. No GitHub, vá em Settings > Secrets and variables > Actions > New secret, crie `VERCEL_TOKEN` e cole o token.
+3. Pronto: no primeiro deploy, o projeto `recupera` é criado sozinho na Vercel.
+4. Opcional, depois que a API estiver no ar: crie a variable `VITE_API_URL` com a URL da API.
 
 ### API e worker
 A Vercel publica só o front. A API Express e o worker BullMQ precisam de processo contínuo, Mongo e Redis, então vão para Render ou Railway (com Mongo Atlas e Upstash Redis).
