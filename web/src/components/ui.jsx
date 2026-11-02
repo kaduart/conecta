@@ -32,8 +32,8 @@ export function Selo() {
 }
 
 export function Aviso({ children, tom = 'erro' }) {
-  const cores = tom === 'erro' ? 'bg-red-50 text-red-800' : 'bg-ambar-fundo/60 text-ambar-texto';
-  return children ? <p role="alert" className={`rounded-card px-4 py-3 text-sm ${cores}`}>{children}</p> : null;
+  const cores = tom === 'erro' ? 'bg-red-50/70 text-red-800' : 'border border-amber-200/40 bg-amber-50/40 text-amber-900';
+  return children ? <p role="alert" className={`rounded-xl px-4 py-3 text-sm ${cores}`}>{children}</p> : null;
 }
 
 export function Carregando({ texto = 'Carregando…' }) {
@@ -42,4 +42,21 @@ export function Carregando({ texto = 'Carregando…' }) {
 
 export function Voltar({ to, children = 'Voltar' }) {
   return <Link to={to} className="text-sm font-light text-apoio hover:text-grafite">← {children}</Link>;
+}
+
+/** Ícones de linha ultrafina (traço 1.5px), no estilo Lucide. */
+const TRACOS = {
+  olho: <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></>,
+  relogio: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
+  escudo: <><path d="M12 3 5 6v6c0 4.4 3 8.2 7 9 4-.8 7-4.6 7-9V6l-7-3Z" /><path d="m9 12 2 2 4-4" /></>,
+  documento: <><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z" /><path d="M14 3v5h5" /></>,
+  check: <path d="M5 12l5 5L20 7" />,
+  subir: <><path d="M12 16V4" /><path d="m7 9 5-5 5 5" /><path d="M5 20h14" /></>,
+};
+export function Icone({ nome, className = 'h-5 w-5' }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      {TRACOS[nome]}
+    </svg>
+  );
 }

@@ -50,22 +50,22 @@ export default function Processando() {
       <h1 className="titulo mt-4">Analisando suas contribuições.</h1>
       <p className="apoio mt-3">De 30 a 90 segundos. Pode manter a tela aberta.</p>
 
-      <div className="mt-8 h-1.5 w-full overflow-hidden rounded-full bg-white/60">
-        <div className="h-full rounded-full bg-esmeralda shadow-neon transition-all duration-500" style={{ width: `${pct}%` }} />
+      <div className="mt-10 h-[2px] w-full rounded-full bg-grafite/[0.06]">
+        <div className="fio-brilho h-full rounded-full bg-esmeralda transition-[width] duration-500 ease-out" style={{ width: `${pct}%` }} />
       </div>
 
-      <ol className="vidro mt-8 space-y-4 p-5">
+      <ol className="vidro mt-10 space-y-5 p-8 sm:p-10">
         {ETAPAS.map((e, i) => {
           const feito = i < atual || pct === 100; const ativo = i === atual && pct < 100;
           return (
-            <li key={e} className={`flex items-center gap-3 ${ativo ? 'font-medium text-esmeralda-texto' : 'font-light'} ${!ativo && !feito ? 'opacity-30' : ''} ${feito ? 'opacity-40' : ''}`}>
+            <li key={e} className={`flex items-center gap-3 transition-opacity duration-700 ${ativo ? 'font-medium text-esmeralda-texto opacity-100' : 'font-light'} ${!ativo && !feito ? 'opacity-25' : ''} ${feito ? 'opacity-40' : ''}`}>
               <span className={`h-2 w-2 rounded-full ${ativo || feito ? 'bg-esmeralda' : 'bg-grafite/30'} ${ativo ? 'pulso' : ''}`} />{e}
             </li>
           );
         })}
       </ol>
 
-      <p className="mt-6 rounded-card bg-ambar-fundo/40 px-4 py-3 text-sm text-ambar-escuro">
+      <p className="mt-8 text-center text-[13px] font-light leading-relaxed text-apoio">
         Prazo legal de 5 anos contado da data de cada pagamento. O que já passou desse prazo não entra no pedido.
       </p>
       <div className="mt-4"><Aviso>{erro}</Aviso></div>

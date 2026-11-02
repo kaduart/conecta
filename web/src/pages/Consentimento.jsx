@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
-import { Aviso, Tela } from '../components/ui.jsx';
+import { Aviso, Icone, Tela } from '../components/ui.jsx';
 
 export default function Consentimento() {
   const { slug } = useParams();
@@ -13,9 +13,9 @@ export default function Consentimento() {
   if (!s?.leadId) return <Navigate to={`/c/${slug}`} replace />;
 
   const itens = [
-    ['Só o seu contador vê', `Compartilhado apenas com ${s.escritorio}.`],
-    ['Arquivos apagados em 30 dias', 'Descarte seguro depois da análise.'],
-    ['Seus direitos garantidos', 'Cópia, correção ou exclusão quando quiser (LGPD, art. 18).'],
+    ['olho', 'Só o seu contador vê', `Compartilhado apenas com ${s.escritorio}.`],
+    ['relogio', 'Arquivos apagados em 30 dias', 'Descarte seguro depois da análise.'],
+    ['escudo', 'Seus direitos garantidos', 'Cópia, correção ou exclusão quando quiser (LGPD, art. 18).'],
   ];
 
   async function continuar() {
@@ -31,11 +31,11 @@ export default function Consentimento() {
       <h1 className="titulo">Seus dados, com uma única finalidade.</h1>
       <p className="apoio mt-4 text-[17px]">Análise do seu crédito de INSS acima do teto e ajustes no IRPF. Nada além disso.</p>
 
-      <ul className="vidro mt-8 divide-y divide-white/60">
-        {itens.map(([t, d]) => (
-          <li key={t} className="flex gap-3 p-5">
-            <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-esmeralda" aria-hidden />
-            <div><p className="font-semibold">{t}</p><p className="apoio text-sm">{d}</p></div>
+      <ul className="vidro mt-8 space-y-6 p-8 sm:p-10">
+        {itens.map(([icone, t, d]) => (
+          <li key={t} className="flex gap-4">
+            <span className="mt-0.5 text-esmeralda-texto"><Icone nome={icone} className="h-6 w-6" /></span>
+            <div><p className="font-semibold">{t}</p><p className="apoio mt-0.5 text-sm leading-relaxed">{d}</p></div>
           </li>
         ))}
       </ul>

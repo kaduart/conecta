@@ -43,7 +43,7 @@ export default function Detalhe() {
             </div>
 
             {alerta?.itens?.length > 0 && (
-              <div className={`rounded-card p-5 ${alerta.prioridade === 'ALTA' ? 'border border-ambar/40 bg-ambar-fundo/40' : 'vidro'}`}>
+              <div className={`rounded-card p-5 ${alerta.prioridade === 'ALTA' ? 'border border-amber-200/40 bg-amber-50/40 text-amber-900' : 'vidro'}`}>
                 <p className={`text-xs font-semibold uppercase tracking-wider ${alerta.prioridade === 'ALTA' ? 'text-ambar-texto' : 'text-apoio'}`}>Prioridade {alerta.prioridade.toLowerCase()}</p>
                 <ul className="mt-2 space-y-1.5 text-[15px]">{alerta.itens.map((t) => <li key={t}>• {t}</li>)}</ul>
               </div>
@@ -56,9 +56,9 @@ export default function Detalhe() {
             <div className="vidro overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="text-xs uppercase tracking-wider text-apoio"><tr>{['Ano', 'Pago', 'Devido', 'Recuperável', 'Prescrito'].map((h) => <th key={h} className="px-4 py-3 font-medium">{h}</th>)}</tr></thead>
-                <tbody className="divide-y divide-white/70">
-                  {r.consolidadoAnual.map((a) => (
-                    <tr key={a.ano}><td className="px-4 py-3 font-semibold">{a.ano}</td><td className="px-4 py-3 font-light">{brl(a.pago)}</td><td className="px-4 py-3 font-light">{brl(a.devido)}</td><td className="px-4 py-3 font-semibold text-esmeralda-texto">{brl(a.excessoRecuperavel)}</td><td className="px-4 py-3 font-light text-sutil">{brl(a.excessoPrescrito)}</td></tr>
+                <tbody>
+                  {r.consolidadoAnual.map((a, n) => (
+                    <tr key={a.ano} className={n % 2 === 0 ? 'bg-white/20' : ''}><td className="px-4 py-3 font-semibold">{a.ano}</td><td className="px-4 py-3 font-light">{brl(a.pago)}</td><td className="px-4 py-3 font-light">{brl(a.devido)}</td><td className="px-4 py-3 font-semibold text-esmeralda-texto">{brl(a.excessoRecuperavel)}</td><td className="px-4 py-3 font-light text-sutil">{brl(a.excessoPrescrito)}</td></tr>
                   ))}
                 </tbody>
               </table>
@@ -69,9 +69,9 @@ export default function Detalhe() {
               <div className="vidro max-h-[420px] overflow-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="sticky top-0 bg-papel/90 uppercase tracking-wider text-apoio"><tr>{['Mês', 'Vínc.', 'Teto', 'Pago', 'Devido', 'Excesso', 'Vence'].map((h) => <th key={h} className="px-3 py-2 font-medium">{h}</th>)}</tr></thead>
-                  <tbody className="divide-y divide-white/70">
-                    {r.meses.map((m) => (
-                      <tr key={m.competencia} className={m.prescrito ? 'text-sutil line-through' : ''}>
+                  <tbody>
+                    {r.meses.map((m, n) => (
+                      <tr key={m.competencia} className={`${n % 2 === 0 ? 'bg-white/20' : ''} ${m.prescrito ? 'text-sutil line-through' : ''}`}>
                         <td className="px-3 py-2">{mesAno(m.competencia)}{!m.parametroConfirmado && ' *'}</td><td className="px-3 py-2">{m.qtdVinculos}</td><td className="px-3 py-2">{brl(m.teto)}</td><td className="px-3 py-2">{brl(m.pago)}</td><td className="px-3 py-2">{brl(m.devido)}</td>
                         <td className="px-3 py-2 font-semibold">{brl(m.excesso)}</td><td className="px-3 py-2">{dataBr(m.vencimentoPrescricao + 'T12:00:00')}</td>
                       </tr>
@@ -84,7 +84,7 @@ export default function Detalhe() {
           </section>
 
           <aside className="space-y-4">
-            <div className="cartao p-5">
+            <div className="cartao p-8">
               <p className="text-xs font-semibold uppercase tracking-wider text-apoio">Roteiro da abordagem</p>
               <p className="mt-3 whitespace-pre-line text-[15px] leading-relaxed">{roteiro}</p>
               <a className="btn-primario mt-5" href={linkWhatsApp(lead.whatsapp, roteiro)} target="_blank" rel="noreferrer">Chamar no WhatsApp</a>

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
-import { Aviso, Tela } from '../components/ui.jsx';
+import { Aviso, Icone, Tela } from '../components/ui.jsx';
+import { proximaPrescricao } from '../lib/prazo.js';
 
 // O cliente vê só o indício; os meses e valores vão para o contador (evita oferta enganosa: CDC/LGPD).
 export default function Concluido() {
@@ -16,10 +17,11 @@ export default function Concluido() {
   }
 
   const comIndicio = s.indicio !== false;
+  const prazo = proximaPrescricao();
   return (
     <Tela rodape="Dados criptografados · Conforme a LGPD">
-      <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-esmeralda/15" aria-hidden>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#047857" strokeWidth="2.5"><path d="M5 12l5 5L20 7" /></svg>
+      <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-esmeralda/15 text-esmeralda-texto" aria-hidden>
+        <Icone nome="check" className="h-6 w-6" />
       </span>
       <h1 className="titulo mt-6">Análise concluída.</h1>
       <p className="apoio mt-4 text-[17px] leading-relaxed">
@@ -29,9 +31,10 @@ export default function Concluido() {
       </p>
 
       {comIndicio && (
-        <div className="mt-8 rounded-card border border-ambar/40 bg-ambar-fundo/30 p-5">
-          <p className="font-semibold text-ambar-escuro">O prazo corre todo mês</p>
-          <p className="mt-1 text-sm text-ambar-texto">A cada virada de mês sem pedido protocolado, a competência mais antiga deixa de poder ser recuperada.</p>
+        <div className="mt-8 rounded-xl border border-amber-200/40 bg-amber-50/40 p-8 text-amber-900 backdrop-blur-xl">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-amber-800/70">Prazo legal</p>
+          <p className="mt-3 font-titulo text-2xl leading-tight">{prazo.dias === 0 ? 'Hoje' : `Em ${prazo.dias} ${prazo.dias === 1 ? 'dia' : 'dias'}`}, {prazo.competencia} sai do prazo.</p>
+          <p className="mt-2 text-sm font-light leading-relaxed text-amber-900/80">A cada dia 20, a competência mais antiga deixa de poder ser pedida de volta. A próxima vence em {prazo.vence}.</p>
         </div>
       )}
 

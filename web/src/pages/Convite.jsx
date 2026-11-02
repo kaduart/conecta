@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
 import { Aviso, Carregando, Tela } from '../components/ui.jsx';
+import { proximaPrescricao } from '../lib/prazo.js';
 
 const PROFISSOES = ['Médico(a)', 'Professor(a) universitário(a)', 'Profissional de TI', 'Engenheiro(a)', 'Diretor(a)', 'Outra'];
 
@@ -49,7 +50,7 @@ export default function Convite() {
       </p>
 
       {convite && (
-        <form onSubmit={enviar} className="vidro mt-8 space-y-5 p-5 sm:p-6" noValidate>
+        <form onSubmit={enviar} className="cartao mt-10 space-y-6 p-8 sm:p-10" noValidate>
           <div>
             <label className="rotulo" htmlFor="nome">Nome</label>
             <input id="nome" className="campo" autoComplete="name" placeholder="Como você se chama" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
@@ -74,9 +75,17 @@ export default function Convite() {
       )}
       {!convite && <div className="mt-8"><Aviso>{erro}</Aviso></div>}
 
-      <p className="mt-6 rounded-card bg-ambar-fundo/40 px-4 py-3 text-sm text-ambar-escuro">
-        A restituição alcança só os últimos 5 anos. As competências mais antigas saem do prazo a cada mês.
-      </p>
+      <NotaPrazo />
     </Tela>
+  );
+}
+
+// Nota confidencial de rodapé: calculada pela data de hoje, nunca fixa no texto.
+function NotaPrazo() {
+  const p = proximaPrescricao();
+  return (
+    <p className="mt-8 text-center text-[13px] font-light leading-relaxed text-apoio">
+      Nota: a restituição alcança só os últimos 5 anos. As contribuições de {p.competencia} saem do prazo em {p.vence}.
+    </p>
   );
 }
