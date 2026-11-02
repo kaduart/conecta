@@ -35,4 +35,4 @@ jobs:
       - name: Vincular (cria o projeto na 1ª vez)
         run: vercel link --yes --project recupera --token=${{ secrets.VERCEL_TOKEN }}
       - name: Publicar em produção
-        run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }} --build-env VITE_API_URL=${{ vars.VITE_API_URL }}
+        run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
