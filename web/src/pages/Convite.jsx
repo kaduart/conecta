@@ -47,7 +47,7 @@ export default function Convite() {
     <>
     <BlocoEditorial foto={FOTO_CLIENTE} className="min-h-[470px] sm:min-h-[520px] lg:min-h-[560px]">
       {convite && <p className="text-[15px] text-apoio">Convite de {convite.escritorio}, {/^crc/i.test(convite.crc) ? convite.crc : `CRC ${convite.crc}`}</p>}
-      <h1 className="font-titulo text-4xl font-normal leading-[1.08] tracking-tight text-grafite sm:text-5xl lg:text-6xl">Seu INSS pago a mais<br className="hidden sm:block" /> tem prazo para voltar.</h1>
+      <h1 className="font-titulo text-4xl font-normal leading-[1.08] tracking-tight text-grafite sm:text-5xl lg:text-6xl">Seu <em className="relative inline-block font-semibold italic text-esmeralda-escuro">INSS<span aria-hidden className="absolute inset-x-[-0.06em] bottom-[0.08em] -z-10 h-[0.32em] rounded-sm bg-esmeralda-brilho/45" /></em> pago a mais<br className="hidden sm:block" /> tem prazo para voltar.</h1>
       <p className="max-w-[44ch] text-base font-light leading-relaxed text-apoio lg:text-lg">
         Quem trabalha em mais de uma empresa, cooperativa ou hospital costuma contribuir acima do teto. O excesso dos últimos 5 anos pode ser pedido de volta.
       </p>
