@@ -29,7 +29,7 @@ export default function Detalhe() {
     <PainelLayout>
       <Voltar to="/painel">Análises</Voltar>
       <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="font-titulo text-[36px] leading-tight">{lead.nome}</h1><p className="apoio">{lead.profissao} · consentiu em {dataBr(lead.consentimento?.aceitoEm)}</p></div>
+        <div><h1 className="titulo">{lead.nome}</h1><p className="apoio">{lead.profissao}. Autorizou em {dataBr(lead.consentimento?.aceitoEm)}.</p></div>
       </div>
       <div className="mt-4"><Aviso>{erro}</Aviso></div>
 
@@ -38,13 +38,13 @@ export default function Detalhe() {
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
           <section className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
-              <div className="cartao p-5"><p className="text-xs uppercase tracking-wider text-apoio">Recuperável</p><p className="mt-1 text-3xl font-bold text-esmeralda-texto">{brl(r.recuperavelOnline)}</p><p className="apoio mt-1 text-xs">{r.confianca === 'ESTIMADO' ? 'Estimado pelo CNIS' : 'Comprovado por documento'}</p></div>
-              <div className="vidro p-5"><p className="text-xs uppercase tracking-wider text-apoio">Já prescrito</p><p className="mt-1 text-3xl font-bold text-sutil">{brl(r.prejuizoPrescrito)}</p><p className="apoio mt-1 text-xs">Data-base {dataBr(r.dataBase)}</p></div>
+              <div className="cartao p-5"><p className="text-sm text-apoio">Recuperável</p><p className="mt-1 text-3xl font-bold text-esmeralda-texto">{brl(r.recuperavelOnline)}</p><p className="apoio mt-1 text-xs">{r.confianca === 'ESTIMADO' ? 'Estimado pelo CNIS' : 'Comprovado por documento'}</p></div>
+              <div className="vidro p-5"><p className="text-sm text-apoio">Já prescrito</p><p className="mt-1 text-3xl font-bold text-sutil">{brl(r.prejuizoPrescrito)}</p><p className="apoio mt-1 text-xs">Data-base {dataBr(r.dataBase)}</p></div>
             </div>
 
             {alerta?.itens?.length > 0 && (
               <div className={`rounded-card p-5 ${alerta.prioridade === 'ALTA' ? 'border border-amber-200/40 bg-amber-50/40 text-amber-900' : 'vidro'}`}>
-                <p className={`text-xs font-semibold uppercase tracking-wider ${alerta.prioridade === 'ALTA' ? 'text-ambar-texto' : 'text-apoio'}`}>Prioridade {alerta.prioridade.toLowerCase()}</p>
+                <p className={`text-xs font-semibold ${alerta.prioridade === 'ALTA' ? 'text-ambar-texto' : 'text-apoio'}`}>Prioridade {alerta.prioridade.toLowerCase()}</p>
                 <ul className="mt-2 space-y-1.5 text-[15px]">{alerta.itens.map((t) => <li key={t}>• {t}</li>)}</ul>
               </div>
             )}
@@ -55,7 +55,7 @@ export default function Detalhe() {
 
             <div className="vidro overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="text-xs uppercase tracking-wider text-apoio"><tr>{['Ano', 'Pago', 'Devido', 'Recuperável', 'Prescrito'].map((h) => <th key={h} className="px-4 py-3 font-medium">{h}</th>)}</tr></thead>
+                <thead className="text-sm text-apoio"><tr>{['Ano', 'Pago', 'Devido', 'Recuperável', 'Prescrito'].map((h) => <th key={h} className="px-4 py-3 font-medium">{h}</th>)}</tr></thead>
                 <tbody>
                   {r.consolidadoAnual.map((a, n) => (
                     <tr key={a.ano} className={n % 2 === 0 ? 'bg-white/20' : ''}><td className="px-4 py-3 font-semibold">{a.ano}</td><td className="px-4 py-3 font-light">{brl(a.pago)}</td><td className="px-4 py-3 font-light">{brl(a.devido)}</td><td className="px-4 py-3 font-semibold text-esmeralda-texto">{brl(a.excessoRecuperavel)}</td><td className="px-4 py-3 font-light text-sutil">{brl(a.excessoPrescrito)}</td></tr>
@@ -68,7 +68,7 @@ export default function Detalhe() {
             {verMeses && (
               <div className="vidro max-h-[420px] overflow-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="sticky top-0 bg-papel/90 uppercase tracking-wider text-apoio"><tr>{['Mês', 'Vínc.', 'Teto', 'Pago', 'Devido', 'Excesso', 'Vence'].map((h) => <th key={h} className="px-3 py-2 font-medium">{h}</th>)}</tr></thead>
+                  <thead className="sticky top-0 bg-papel/90 text-apoio"><tr>{['Mês', 'Vínc.', 'Teto', 'Pago', 'Devido', 'Excesso', 'Vence'].map((h) => <th key={h} className="px-3 py-2 font-medium">{h}</th>)}</tr></thead>
                   <tbody>
                     {r.meses.map((m, n) => (
                       <tr key={m.competencia} className={`${n % 2 === 0 ? 'bg-white/20' : ''} ${m.prescrito ? 'text-sutil line-through' : ''}`}>
@@ -85,7 +85,7 @@ export default function Detalhe() {
 
           <aside className="space-y-4">
             <div className="cartao p-8">
-              <p className="text-xs font-semibold uppercase tracking-wider text-apoio">Roteiro da abordagem</p>
+              <p className="font-titulo text-xl font-medium text-grafite">Roteiro da abordagem</p>
               <p className="mt-3 whitespace-pre-line text-[15px] leading-relaxed">{roteiro}</p>
               <a className="btn-primario mt-5" href={linkWhatsApp(lead.whatsapp, roteiro)} target="_blank" rel="noreferrer">Chamar no WhatsApp</a>
             </div>

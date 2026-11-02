@@ -3,6 +3,7 @@ import { Navigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
 import { Aviso, Icone, Tela } from '../components/ui.jsx';
 import { proximaPrescricao } from '../lib/prazo.js';
+import Regua from '../components/Regua.jsx';
 
 // O cliente vê só o indício; os meses e valores vão para o contador (evita oferta enganosa: CDC/LGPD).
 export default function Concluido() {
@@ -18,36 +19,41 @@ export default function Concluido() {
 
   const comIndicio = s.indicio !== false;
   const prazo = proximaPrescricao();
-  return (
-    <Tela rodape="Dados criptografados · Conforme a LGPD">
+  const quando = prazo.dias === 0 ? 'Hoje' : `Em ${prazo.dias} ${prazo.dias === 1 ? 'dia' : 'dias'}`;
+
+  const editorial = (
+    <>
       <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-esmeralda/15 text-esmeralda-texto" aria-hidden>
         <Icone nome="check" className="h-6 w-6" />
       </span>
-      <h1 className="titulo mt-6">Análise concluída.</h1>
-      <p className="apoio mt-4 text-[17px] leading-relaxed">
+      <h1 className="titulo-hero mt-6 max-w-[14ch]">{comIndicio ? 'Há indício de INSS a recuperar.' : 'Análise concluída.'}</h1>
+      <p className="mt-5 max-w-[44ch] text-lg leading-relaxed text-apoio">
         {comIndicio
-          ? 'Encontramos indícios de INSS descontado acima do teto, que pode ser pedido de volta à Receita Federal.'
+          ? 'Encontramos meses com desconto acima do teto. Esse valor pode ser pedido de volta à Receita Federal.'
           : 'Não encontramos desconto acima do teto nos documentos enviados. Seu contador pode revisar com outros comprovantes.'}
       </p>
-
       {comIndicio && (
-        <div className="mt-8 rounded-xl border border-amber-200/40 bg-amber-50/40 p-8 text-amber-900 backdrop-blur-xl">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-amber-800/70">Prazo legal</p>
-          <p className="mt-3 font-titulo text-2xl leading-tight">{prazo.dias === 0 ? 'Hoje' : `Em ${prazo.dias} ${prazo.dias === 1 ? 'dia' : 'dias'}`}, {prazo.competencia} sai do prazo.</p>
-          <p className="mt-2 text-sm font-light leading-relaxed text-amber-900/80">A cada dia 20, a competência mais antiga deixa de poder ser pedida de volta. A próxima vence em {prazo.vence}.</p>
+        <div className="mt-10 rounded-xl border border-amber-200/40 bg-amber-50/40 p-8 text-amber-900 backdrop-blur-xl sm:p-10">
+          <p className="font-titulo text-[28px] font-medium leading-tight">{quando}, {prazo.competencia} sai do prazo.</p>
+          <p className="mt-2 text-[15px] leading-relaxed text-amber-900/80">Todo dia 20, o mês mais antigo deixa de poder ser pedido de volta.</p>
+          <Regua className="mt-8" compacta />
         </div>
       )}
+    </>
+  );
 
-      <p className="mt-6 text-[15px] leading-relaxed">
-        O relatório com os meses e valores já está com o especialista de <strong>{s.escritorio}</strong>. Ele vai falar com você em breve pelo WhatsApp.
-      </p>
-
-      <div className="mt-auto space-y-3 pt-8">
+  return (
+    <Tela lateral={editorial} rodape="Seus dados ficam criptografados e seguem a LGPD.">
+      <div className="cartao space-y-5 p-7 sm:p-10">
+        <h2 className="font-titulo text-2xl font-medium">Próximo passo</h2>
+        <p className="text-[16px] leading-relaxed">
+          O relatório com os meses e valores já está com <strong>{s.escritorio}</strong>. O especialista vai falar com você pelo WhatsApp.
+        </p>
         <Aviso>{erro}</Aviso>
         {copia ? (
-          <p className="rounded-card bg-white/60 px-4 py-3 text-center text-sm">Pedido registrado. Você recebe a cópia até {copia.prazoAte.split('-').reverse().join('/')}.</p>
+          <p className="rounded-xl bg-esmeralda/[0.06] px-4 py-3 text-[15px] text-esmeralda-texto">Pedido registrado. Você recebe a cópia até {copia.prazoAte.split('-').reverse().join('/')}.</p>
         ) : (
-          <button className="btn-secundario" onClick={pedirCopia}>Solicitar cópia do relatório</button>
+          <button className="btn-secundario border border-grafite/10" onClick={pedirCopia}>Pedir cópia do relatório</button>
         )}
       </div>
     </Tela>

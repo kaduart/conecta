@@ -6,7 +6,7 @@ import { Aviso, Icone, Tela } from '../components/ui.jsx';
 const BLOCOS = [
   { tipo: 'CNIS', titulo: 'Extrato CNIS', ajuda: 'Baixe o PDF em 1 minuto no app Meu INSS', multiplo: false, obrigatorio: true },
   { tipo: 'INFORME', titulo: 'Informes de rendimentos', ajuda: 'PDFs de cada fonte pagadora, dos últimos 5 anos', multiplo: true, obrigatorio: true },
-  { tipo: 'IRPF', titulo: 'Declarações do IRPF · opcional', ajuda: 'Recibo ou declaração em PDF', multiplo: true, obrigatorio: false },
+  { tipo: 'IRPF', titulo: 'Declarações do IRPF (opcional)', ajuda: 'Recibo ou declaração em PDF', multiplo: true, obrigatorio: false },
 ];
 const MAX = 10 * 1024 * 1024;
 
@@ -80,18 +80,23 @@ export default function Upload() {
     } catch (e) { setErro(e.message); } finally { setEnviando(false); }
   }
 
+  const editorial = (
+    <>
+      <h1 className="titulo-hero max-w-[14ch]">Três PDFs e a conta está feita.</h1>
+      <p className="mt-5 max-w-[44ch] text-lg leading-relaxed text-apoio">O CNIS mostra quanto cada empresa recolheu por mês. Os informes confirmam os valores. O IRPF é opcional.</p>
+      <p className="mt-6"><a className="link text-[15px]" href="https://meu.inss.gov.br" target="_blank" rel="noreferrer">Como baixar o CNIS no Meu INSS</a></p>
+    </>
+  );
+
   return (
-    <Tela etapa="2 de 3">
-      <h1 className="titulo">Três documentos, poucos minutos.</h1>
-      <p className="apoio mt-4 text-[17px]">Toque em cada área ou arraste o PDF até ela.</p>
-      <div className="cartao mt-8 space-y-4 p-6 sm:p-10">
+    <Tela etapa="Etapa 2 de 3" lateral={editorial}>
+      <div className="cartao space-y-4 p-6 sm:p-10">
         {BLOCOS.map((b) => <Bloco key={b.tipo} bloco={b} arquivos={arquivos[b.tipo]} onChange={(l) => definir(b.tipo, l)} />)}
-      </div>
-      <div className="mt-auto space-y-3 pt-8">
-        <Aviso>{erro}</Aviso>
-        <button className="btn-primario" disabled={!pronto || enviando} onClick={enviar}>{enviando ? 'Enviando com criptografia…' : 'Enviar para processamento'}</button>
-        {!pronto && <p className="text-center text-xs font-light text-sutil">Anexe o CNIS e os informes</p>}
-        <p className="text-center"><a className="link text-sm" href="https://meu.inss.gov.br" target="_blank" rel="noreferrer">Como baixar o CNIS no Meu INSS</a></p>
+        <div className="space-y-3 pt-4">
+          <Aviso>{erro}</Aviso>
+          <button className="btn-primario" disabled={!pronto || enviando} onClick={enviar}>{enviando ? 'Enviando com criptografia…' : 'Enviar para análise'}</button>
+          {!pronto && <p className="text-center text-[14px] font-light text-apoio">Falta anexar o CNIS e os informes.</p>}
+        </div>
       </div>
     </Tela>
   );

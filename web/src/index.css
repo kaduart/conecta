@@ -18,7 +18,8 @@
   .campo { @apply w-full rounded-xl bg-papel/70 px-4 py-3.5 text-grafite outline-none transition-all duration-300 focus:bg-white focus:shadow-neon; }
   .rotulo { @apply mb-1.5 block text-sm font-medium text-grafite; }
   .apoio { @apply font-light text-apoio; }
-  .titulo { @apply font-titulo text-[36px] leading-[1.1] tracking-tight text-grafite; }
+  .titulo { @apply font-titulo text-[36px] font-medium leading-[1.08] tracking-tight text-grafite sm:text-[44px]; }
+  .titulo-hero { @apply font-titulo text-[40px] font-medium leading-[1.04] tracking-tight text-grafite sm:text-[56px] lg:text-[64px]; }
   .btn { @apply inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-4 font-semibold transition-all duration-300 active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:shadow-none; }
   .btn-primario { @apply btn bg-esmeralda text-esmeralda-tinta shadow-acao hover:scale-[1.01] hover:shadow-lg; }
   .btn-secundario { @apply btn bg-white/60 text-grafite hover:scale-[1.01] hover:bg-white hover:shadow-lg; }
@@ -37,3 +38,9 @@
 /* Fio de carregamento com brilho discreto */
 .fio-brilho { box-shadow: 0 0 6px rgba(16,185,129,0.55), 0 0 14px rgba(16,185,129,0.25); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; } }
+
+/* Régua: os traços sobem um a um no carregamento; o primeiro pisca uma vez */
+@keyframes traco { from { transform: scaleY(0); opacity: 0 } to { transform: scaleY(1); opacity: 1 } }
+.regua-traco { transform-origin: bottom; animation: traco 420ms cubic-bezier(.2,.8,.2,1) both; }
+@keyframes alerta { 0%, 100% { opacity: 1 } 50% { opacity: .35 } }
+.regua-primeiro { animation: traco 420ms cubic-bezier(.2,.8,.2,1) both, alerta 1.6s ease-in-out 900ms 2; }

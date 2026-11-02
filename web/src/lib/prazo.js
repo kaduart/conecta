@@ -21,3 +21,19 @@ export function proximaPrescricao(hoje = hojeSP()) {
     dias,
   };
 }
+
+/**
+ * Régua dos 60 meses ainda recuperáveis, do mais antigo (o próximo a sair do prazo) ao mais recente pago.
+ * Cada item: { rotulo: 'out/2021', ano: 2021 }.
+ */
+export function reguaMeses(hoje = hojeSP()) {
+  const { competencia } = proximaPrescricao(hoje);
+  const [m, a] = competencia.split('/');
+  let mes = MESES.indexOf(m); let ano = Number(a);
+  const lista = [];
+  for (let i = 0; i < 60; i += 1) {
+    lista.push({ rotulo: `${MESES[mes]}/${ano}`, ano, mes });
+    mes += 1; if (mes > 11) { mes = 0; ano += 1; }
+  }
+  return lista;
+}

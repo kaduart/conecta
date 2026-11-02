@@ -26,30 +26,31 @@ export default function Consentimento() {
     } catch (e) { setErro(e.message); } finally { setEnviando(false); }
   }
 
-  return (
-    <Tela etapa="1 de 3">
-      <h1 className="titulo">Seus dados, com uma única finalidade.</h1>
-      <p className="apoio mt-4 text-[17px]">Análise do seu crédito de INSS acima do teto e ajustes no IRPF. Nada além disso.</p>
-
-      <ul className="vidro mt-8 space-y-6 p-8 sm:p-10">
+  const editorial = (
+    <>
+      <h1 className="titulo-hero max-w-[16ch]">Seus documentos servem a uma coisa só.</h1>
+      <p className="mt-5 max-w-[44ch] text-lg leading-relaxed text-apoio">Calcular o INSS pago acima do teto e os ajustes no seu IRPF. Nada além disso.</p>
+      <ul className="vidro mt-10 space-y-6 p-8 sm:p-10">
         {itens.map(([icone, t, d]) => (
           <li key={t} className="flex gap-4">
             <span className="mt-0.5 text-esmeralda-texto"><Icone nome={icone} className="h-6 w-6" /></span>
-            <div><p className="font-semibold">{t}</p><p className="apoio mt-0.5 text-sm leading-relaxed">{d}</p></div>
+            <div><p className="font-semibold">{t}</p><p className="mt-0.5 text-[15px] leading-relaxed text-apoio">{d}</p></div>
           </li>
         ))}
       </ul>
+    </>
+  );
 
-      <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-card p-1">
-        <input type="checkbox" className="mt-0.5 h-6 w-6 shrink-0 accent-esmeralda" checked={aceito} onChange={(e) => setAceito(e.target.checked)} />
-        <span className="text-[15px] leading-snug">Li e autorizo o processamento dos meus documentos para fins de auditoria tributária.</span>
-      </label>
-
-      <div className="mt-auto space-y-3 pt-8">
+  return (
+    <Tela etapa="Etapa 1 de 3" lateral={editorial}>
+      <div className="cartao space-y-6 p-7 sm:p-10">
+        <label className="flex cursor-pointer items-start gap-3">
+          <input type="checkbox" className="mt-0.5 h-6 w-6 shrink-0 rounded accent-esmeralda" checked={aceito} onChange={(e) => setAceito(e.target.checked)} />
+          <span className="text-[16px] leading-snug">Li e autorizo o uso dos meus documentos para a análise tributária.</span>
+        </label>
         <Aviso>{erro}</Aviso>
-        <button className="btn-primario" disabled={!aceito || enviando} onClick={continuar}>{enviando ? 'Registrando…' : 'Continuar'}</button>
-        {!aceito && <p className="text-center text-xs font-light text-sutil">Marque a autorização para continuar</p>}
-        <p className="text-center"><a className="link text-sm" href="/privacidade" target="_blank" rel="noreferrer">Política de Privacidade completa</a></p>
+        <button className="btn-primario" disabled={!aceito || enviando} onClick={continuar}>{enviando ? 'Registrando…' : 'Autorizar e continuar'}</button>
+        <p className="text-center text-[14px] font-light text-apoio">Você pode pedir cópia ou exclusão dos dados a qualquer momento. <a className="link" href="/privacidade" target="_blank" rel="noreferrer">Política de privacidade</a></p>
       </div>
     </Tela>
   );

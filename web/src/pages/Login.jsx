@@ -21,7 +21,7 @@ export default function Login() {
     <Tela>
       <h1 className="titulo">Painel do contador</h1>
       <p className="apoio mt-3">Acesse as auditorias dos seus clientes.</p>
-      <form onSubmit={entrar} className="vidro mt-8 space-y-5 p-5">
+      <form onSubmit={entrar} className="cartao mt-8 space-y-5 p-7 sm:p-10">
         <div><label className="rotulo" htmlFor="em">E-mail</label><input id="em" type="email" autoComplete="username" className="campo" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
         <div><label className="rotulo" htmlFor="k">Senha</label><input id="k" type="password" autoComplete="current-password" className="campo" value={form.senha} onChange={(e) => setForm({ ...form, senha: e.target.value })} /></div>
         <Aviso>{erro}</Aviso>

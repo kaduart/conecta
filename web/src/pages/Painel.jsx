@@ -24,7 +24,7 @@ export default function Painel() {
 
   return (
     <PainelLayout>
-      <h1 className="font-titulo text-[36px] leading-tight">Análises</h1>
+      <h1 className="titulo">Análises</h1>
       <Aviso>{erro}</Aviso>
       {!dados && !erro && <Carregando />}
       {dados && (
@@ -53,7 +53,7 @@ export default function Painel() {
 
           <div className="vidro mt-10 hidden overflow-x-auto p-2 md:block">
             <table className="w-full text-left text-sm">
-              <thead className="text-xs uppercase tracking-wider text-apoio">
+              <thead className="text-sm text-apoio">
                 <tr>{['Cliente', 'Recuperável', 'Já prescrito', 'Próximo vencimento', 'Confiança', 'Status', ''].map((h) => <th key={h} className="px-5 pb-3 pt-5 font-medium">{h}</th>)}</tr>
               </thead>
               <tbody>
