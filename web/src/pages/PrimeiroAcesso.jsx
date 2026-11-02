@@ -10,7 +10,7 @@ const CAMPOS = [
   ['crc', 'CRC', 'text', 'off'],
   ['email', 'E-mail', 'email', 'username'],
   ['whatsapp', 'WhatsApp', 'tel', 'tel-national'],
-  ['slug_link', 'Link do convite (ex.: silva)', 'text', 'off'],
+  ['slug_link', 'Link do convite (opcional, ex.: silva)', 'text', 'off'],
   ['senha', 'Senha (mínimo 10 caracteres)', 'password', 'new-password'],
 ];
 
