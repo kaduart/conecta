@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { AnimatePresence, motion, MotionConfig } from 'motion/react';
 import { api } from '../lib/api.js';
 import { brl, mesAno, dataBr, linkWhatsApp } from '../lib/formato.js';
 import PainelLayout from '../components/PainelLayout.jsx';
@@ -43,16 +44,23 @@ export default function Detalhe() {
       </header>
       <div className="mt-4"><Aviso>{erro}</Aviso></div>
 
+      <MotionConfig reducedMotion="user">
       <nav className="mt-8 flex gap-1" role="tablist">
         {[['analise', 'Análise do INSS'], ['abordagem', 'Abordagem e documentos']].map(([k, t]) => (
           <button key={k} role="tab" aria-selected={aba === k} onClick={() => setAba(k)}
-            className={`rounded-xl px-4 py-2.5 text-[15px] font-semibold transition-all duration-300 ${aba === k ? 'bg-white text-grafite shadow-[0_8px_24px_-12px_rgba(31,42,46,0.25)]' : 'text-apoio hover:text-grafite'}`}>
-            {t}
+            className={`relative rounded-xl px-4 py-2.5 text-[15px] font-semibold transition-colors duration-300 ${aba === k ? 'text-grafite' : 'text-apoio hover:text-grafite'}`}>
+            {aba === k && (
+              <motion.span layoutId="aba-ativa" className="absolute inset-0 rounded-xl bg-white shadow-[0_8px_24px_-12px_rgba(31,42,46,0.25)]"
+                transition={{ type: 'spring', stiffness: 420, damping: 36 }} />
+            )}
+            <span className="relative">{t}</span>
           </button>
         ))}
       </nav>
 
       {!r && <p className="mt-8 text-apoio">O relatório ainda não foi gerado. Status atual: {lead.status}.</p>}
+      <AnimatePresence mode="wait" initial={false}>
+      <motion.div key={aba} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.22, ease: [0.2, 0.8, 0.2, 1] }}>
       {r && aba === 'analise' && <Analise r={r} alerta={alerta} />}
       {aba === 'abordagem' && (
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.3fr_1fr]">
@@ -69,6 +77,9 @@ export default function Detalhe() {
           </div>
         </div>
       )}
+      </motion.div>
+      </AnimatePresence>
+      </MotionConfig>
     </PainelLayout>
   );
 }
@@ -170,7 +181,25 @@ function Analise({ r, alerta }) {
       {/* Lançamentos */}
       <section>
         <h2 className="font-titulo text-2xl font-medium">Lançamentos mês a mês</h2>
-        <div className="vidro mt-4 overflow-x-auto p-2">
+        <ul className="vidro mt-4 divide-y divide-grafite/5 sm:hidden">
+          {meses.map((m) => {
+            const destaque = proximo && m.competencia === proximo.competencia;
+            return (
+              <li key={m.competencia} className={`flex items-center justify-between gap-3 px-4 py-3.5 ${destaque ? 'bg-amber-50/70' : ''}`}>
+                <div className="min-w-0">
+                  <p className="font-semibold tabular-nums">{mesAno(m.competencia)}{!m.parametroConfirmado && <span className="text-apoio"> *</span>}</p>
+                  <p className="text-[13px] tabular-nums text-apoio">pago {brl(m.pago)}</p>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <span className={`font-semibold tabular-nums ${m.prescrito ? 'text-sutil line-through' : 'text-esmeralda-texto'}`}>{brl(m.excesso)}</span>
+                  <SeloPrazo m={m} />
+                </div>
+              </li>
+            );
+          })}
+          <li className="flex justify-between px-4 py-4 font-semibold"><span>Total ({meses.length} meses)</span><span className="tabular-nums text-esmeralda-texto">{brl(k.restituivel)}</span></li>
+        </ul>
+        <div className="vidro mt-4 hidden overflow-x-auto p-2 sm:block">
           <table className="w-full min-w-[760px] text-sm">
             <thead className="text-apoio">
               <tr>{['Mês', 'Fontes', 'Teto', 'INSS pago', 'Devido', 'Excesso', 'Prazo'].map((h, i) => <th key={h} className={`px-4 pb-3 pt-4 font-medium ${i < 2 ? 'text-left' : 'text-right'}`}>{h}</th>)}</tr>
@@ -239,7 +268,7 @@ function PorAno({ r, fonte, anoAtivo, onAno }) {
           <button key={a.ano} onClick={() => onAno(String(a.ano))}
             className={`grid w-full grid-cols-[48px_1fr_112px] items-center gap-3 text-left text-sm transition-opacity duration-300 sm:grid-cols-[56px_1fr_140px] ${ativo ? '' : 'opacity-35'}`}>
             <span className="font-semibold tabular-nums">{a.ano}</span>
-            <span className="flex h-5 overflow-hidden rounded-md bg-grafite/[0.05]">
+            <span className="flex h-5 overflow-hidden rounded-md bg-grafite/5">
               <span className="bg-grafite/25 transition-[width] duration-500" style={{ width: `${(a.devido / max) * 100}%` }} title={`Devido ${brl(a.devido)}`} />
               <span className="bg-esmeralda transition-[width] duration-500" style={{ width: `${(a.excessoRecuperavel / max) * 100}%` }} title={`Restituível ${brl(a.excessoRecuperavel)}`} />
               <span className="bg-red-700/45 transition-[width] duration-500" style={{ width: `${(a.excessoPrescrito / max) * 100}%` }} title={`Prescrito ${brl(a.excessoPrescrito)}`} />
@@ -249,9 +278,9 @@ function PorAno({ r, fonte, anoAtivo, onAno }) {
         );
       })}
       <div className="flex flex-wrap gap-x-5 gap-y-1 pt-2 text-[13px] text-apoio">
-        <span><i className="mr-1.5 inline-block h-2.5 w-2.5 rounded-sm bg-grafite/25 align-[-1px]" />INSS devido (até o teto)</span>
-        <span><i className="mr-1.5 inline-block h-2.5 w-2.5 rounded-sm bg-esmeralda align-[-1px]" />Excesso restituível</span>
-        <span><i className="mr-1.5 inline-block h-2.5 w-2.5 rounded-sm bg-red-700/45 align-[-1px]" />Excesso prescrito</span>
+        <span><i className="mr-1.5 inline-block h-2.5 w-2.5 rounded-xs bg-grafite/25 align-[-1px]" />INSS devido (até o teto)</span>
+        <span><i className="mr-1.5 inline-block h-2.5 w-2.5 rounded-xs bg-esmeralda align-[-1px]" />Excesso restituível</span>
+        <span><i className="mr-1.5 inline-block h-2.5 w-2.5 rounded-xs bg-red-700/45 align-[-1px]" />Excesso prescrito</span>
         {fonte !== 'todas' && <span>As barras mostram o total de todas as fontes.</span>}
       </div>
     </div>

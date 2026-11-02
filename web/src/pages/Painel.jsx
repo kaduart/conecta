@@ -64,7 +64,7 @@ export default function Painel() {
                     <td className="px-5 py-6 font-light text-sutil">{brlCurto(i.prejuizoPrescrito)}</td>
                     <td className="px-5 py-6"><Prazo dias={i.diasParaPrescrever} /></td>
                     <td className="px-5 py-6 font-light">{i.confianca === 'COMPROVADO' ? 'Comprovado' : i.confianca ? 'Estimado' : '—'}</td>
-                    <td className="px-5 py-6 font-light">{STATUS[i.status]}{i.copiaPendente && <span className="ml-2 rounded bg-ambar-fundo px-1.5 py-0.5 text-xs text-ambar-texto">cópia LGPD</span>}</td>
+                    <td className="px-5 py-6 font-light">{STATUS[i.status]}{i.copiaPendente && <span className="ml-2 rounded-sm bg-ambar-fundo px-1.5 py-0.5 text-xs text-ambar-texto">cópia LGPD</span>}</td>
                     <td className="px-5 py-6 text-right"><Link className="link" to={`/painel/${i.id}`}>Abrir</Link></td>
                   </tr>
                 ))}

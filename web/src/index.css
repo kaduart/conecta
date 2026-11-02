@@ -1,6 +1,96 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-papel: #f7f5f0;
+  --color-grafite: #1f2a2e;
+  --color-apoio: #5c666a;
+  --color-sutil: #7a8386;
+
+  --color-esmeralda: #10b981;
+  --color-esmeralda-texto: #047857;
+  --color-esmeralda-escuro: #065f46;
+  --color-esmeralda-tinta: #10302a;
+  --color-esmeralda-brilho: #6ee7b7;
+
+  --color-ambar: #d97706;
+  --color-ambar-texto: #92400e;
+  --color-ambar-escuro: #78350f;
+  --color-ambar-fundo: #fef3c7;
+
+  --font-titulo: 'Playfair Display', Georgia, serif;
+  --font-corpo: Figtree, system-ui, -apple-system, sans-serif;
+
+  --radius-card: 12px;
+
+  --shadow-vidro: 0 8px 32px rgba(31, 42, 46, 0.04);
+  --shadow-acao: 0 25px 50px -12px rgba(31, 42, 46, 0.08);
+  --shadow-neon:
+    0 0 0 4px rgba(16, 185, 129, 0.08), 0 0 28px rgba(16, 185, 129, 0.22);
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility vidro {
+  /* Vidro líquido: cards de contexto. Sem linhas divisórias; o reflexo de 1px faz a borda. */
+  @apply rounded-xl border border-white/60 bg-white/30 shadow-[0_8px_32px_0_rgba(31,42,46,0.03)] backdrop-blur-xl;
+}
+
+@utility cartao {
+  /* Elevação por névoa: só onde o usuário age (formulário, upload, roteiro). Branco puro, sem borda. */
+  @apply rounded-xl bg-white shadow-[0_25px_50px_-12px_rgba(31,42,46,0.06)];
+}
+
+@utility campo {
+  @apply w-full rounded-xl bg-papel/70 px-4 py-3.5 text-grafite outline-hidden transition-all duration-300 focus:bg-white focus:shadow-neon;
+}
+
+@utility rotulo {
+  @apply mb-1.5 block text-sm font-medium text-grafite;
+}
+
+@utility apoio {
+  @apply font-light text-apoio;
+}
+
+@utility titulo {
+  @apply font-titulo text-[36px] font-medium leading-[1.08] tracking-tight text-grafite sm:text-[44px];
+}
+
+@utility titulo-hero {
+  @apply font-titulo text-[40px] font-medium leading-[1.04] tracking-tight text-grafite sm:text-[56px] lg:text-[64px];
+}
+
+@utility btn {
+  @apply inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-4 font-semibold transition-all duration-300 active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:shadow-none;
+}
+
+@utility btn-primario {
+  @apply btn bg-esmeralda text-esmeralda-tinta shadow-acao hover:scale-[1.01] hover:shadow-lg;
+}
+
+@utility btn-secundario {
+  @apply btn bg-white/60 text-grafite hover:scale-[1.01] hover:bg-white hover:shadow-lg;
+}
+
+@utility link {
+  @apply font-medium text-esmeralda-texto underline-offset-4 hover:text-esmeralda-escuro hover:underline;
+}
 
 @layer base {
   html { -webkit-text-size-adjust: 100%; }
@@ -8,22 +98,6 @@
   /* iOS: inputs com 16px evitam o zoom automático ao focar */
   input, select, textarea, button { font-size: 16px; }
   ::placeholder { color: #7A8386; font-weight: 300; }
-}
-
-@layer components {
-  /* Vidro líquido: cards de contexto. Sem linhas divisórias; o reflexo de 1px faz a borda. */
-  .vidro { @apply rounded-xl border border-white/60 bg-white/30 shadow-[0_8px_32px_0_rgba(31,42,46,0.03)] backdrop-blur-xl; }
-  /* Elevação por névoa: só onde o usuário age (formulário, upload, roteiro). Branco puro, sem borda. */
-  .cartao { @apply rounded-xl bg-white shadow-[0_25px_50px_-12px_rgba(31,42,46,0.06)]; }
-  .campo { @apply w-full rounded-xl bg-papel/70 px-4 py-3.5 text-grafite outline-none transition-all duration-300 focus:bg-white focus:shadow-neon; }
-  .rotulo { @apply mb-1.5 block text-sm font-medium text-grafite; }
-  .apoio { @apply font-light text-apoio; }
-  .titulo { @apply font-titulo text-[36px] font-medium leading-[1.08] tracking-tight text-grafite sm:text-[44px]; }
-  .titulo-hero { @apply font-titulo text-[40px] font-medium leading-[1.04] tracking-tight text-grafite sm:text-[56px] lg:text-[64px]; }
-  .btn { @apply inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-4 font-semibold transition-all duration-300 active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:shadow-none; }
-  .btn-primario { @apply btn bg-esmeralda text-esmeralda-tinta shadow-acao hover:scale-[1.01] hover:shadow-lg; }
-  .btn-secundario { @apply btn bg-white/60 text-grafite hover:scale-[1.01] hover:bg-white hover:shadow-lg; }
-  .link { @apply font-medium text-esmeralda-texto underline-offset-4 hover:text-esmeralda-escuro hover:underline; }
 }
 
 /* Mesh gradient oculto: duas manchas de luz atrás das camadas de vidro. */

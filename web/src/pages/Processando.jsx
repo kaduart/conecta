@@ -54,7 +54,7 @@ export default function Processando() {
 
   return (
     <Tela etapa="Etapa 3 de 3" lateral={editorial}>
-      <div className="h-[2px] w-full rounded-full bg-grafite/[0.06]">
+      <div className="h-[2px] w-full rounded-full bg-grafite/6">
         <div className="fio-brilho h-full rounded-full bg-esmeralda transition-[width] duration-500 ease-out" style={{ width: `${pct}%` }} />
       </div>
       <ol className="vidro mt-8 space-y-5 p-8 sm:p-10">

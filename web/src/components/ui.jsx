@@ -1,3 +1,4 @@
+import { Eye, Clock, ShieldCheck, FileText, Check, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function Marca({ className = '' }) {
@@ -15,7 +16,7 @@ export function Marca({ className = '' }) {
 export function Tela({ etapa, children, rodape, lateral }) {
   const largo = Boolean(lateral);
   return (
-    <main className={`seguro mx-auto flex min-h-[100dvh] w-full flex-col px-5 sm:px-8 ${largo ? 'max-w-6xl' : 'max-w-md sm:max-w-lg'}`}>
+    <main className={`seguro mx-auto flex min-h-dvh w-full flex-col px-5 sm:px-8 ${largo ? 'max-w-6xl' : 'max-w-md sm:max-w-lg'}`}>
       <header className="flex items-center justify-between py-4">
         <Marca />
         {etapa ? <span className="text-sm text-apoio tabular-nums">{etapa}</span> : <Selo />}
@@ -56,18 +57,9 @@ export function Voltar({ to, children = 'Voltar' }) {
 }
 
 /** Ícones de linha ultrafina (traço 1.5px), no estilo Lucide. */
-const TRACOS = {
-  olho: <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></>,
-  relogio: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
-  escudo: <><path d="M12 3 5 6v6c0 4.4 3 8.2 7 9 4-.8 7-4.6 7-9V6l-7-3Z" /><path d="m9 12 2 2 4-4" /></>,
-  documento: <><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z" /><path d="M14 3v5h5" /></>,
-  check: <path d="M5 12l5 5L20 7" />,
-  subir: <><path d="M12 16V4" /><path d="m7 9 5-5 5 5" /><path d="M5 20h14" /></>,
-};
+const ICONES = { olho: Eye, relogio: Clock, escudo: ShieldCheck, documento: FileText, check: Check, subir: Upload };
+/** Ícones lucide-react com traço fino (1.5) para combinar com a tipografia. */
 export function Icone({ nome, className = 'h-5 w-5' }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      {TRACOS[nome]}
-    </svg>
-  );
+  const C = ICONES[nome] || Check;
+  return <C className={className} strokeWidth={1.5} aria-hidden />;
 }

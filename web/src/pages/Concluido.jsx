@@ -51,7 +51,7 @@ export default function Concluido() {
         </p>
         <Aviso>{erro}</Aviso>
         {copia ? (
-          <p className="rounded-xl bg-esmeralda/[0.06] px-4 py-3 text-[15px] text-esmeralda-texto">Pedido registrado. Você recebe a cópia até {copia.prazoAte.split('-').reverse().join('/')}.</p>
+          <p className="rounded-xl bg-esmeralda/6 px-4 py-3 text-[15px] text-esmeralda-texto">Pedido registrado. Você recebe a cópia até {copia.prazoAte.split('-').reverse().join('/')}.</p>
         ) : (
           <button className="btn-secundario border border-grafite/10" onClick={pedirCopia}>Pedir cópia do relatório</button>
         )}

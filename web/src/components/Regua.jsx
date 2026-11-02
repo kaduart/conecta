@@ -22,7 +22,7 @@ export default function Regua({ className = '', compacta = false }) {
       <div className="relative mt-2 h-4 text-[12px] tabular-nums text-apoio" aria-hidden>
         {anos.map((m) => {
           const i = meses.indexOf(m);
-          return <span key={m.rotulo} className="absolute -translate-x-0" style={{ left: `${(i / 60) * 100}%` }}>{m.ano}</span>;
+          return <span key={m.rotulo} className="absolute translate-x-0" style={{ left: `${(i / 60) * 100}%` }}>{m.ano}</span>;
         })}
       </div>
       {!compacta && (

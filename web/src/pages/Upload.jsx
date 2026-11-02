@@ -21,7 +21,7 @@ function Bloco({ bloco, arquivos, onChange }) {
     if (lista.length) onChange(bloco.multiplo ? lista : lista.slice(0, 1));
   };
   const estilo = feito
-    ? 'border border-esmeralda/30 bg-esmeralda/[0.04]'
+    ? 'border border-esmeralda/30 bg-esmeralda/4'
     : sobre
       ? 'border border-dashed border-esmeralda/60 bg-white/70 shadow-neon'
       : 'border border-dashed border-emerald-500/20 bg-white/10 hover:border-esmeralda/40 hover:bg-white/50';
