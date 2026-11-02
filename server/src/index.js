@@ -33,4 +33,4 @@ if (process.env.WORKER_EMBUTIDO === '1') {
   const { iniciarWorkers } = await import('./queues/workers.js');
   await iniciarWorkers();
 }
-app.listen(config.port, () => log.info({ port: config.port }, 'API RECUPERA no ar'));
+app.listen(config.port, () => log.info({ port: config.port, storage: config.s3.bucket ? 's3' : 'disco-local' }, 'API RECUPERA no ar'));

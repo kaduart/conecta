@@ -54,7 +54,7 @@ Webhook opcional ao CRM do escritório: evento `auditoria.concluida`, header `X-
 
 ## O que ainda falta para produção
 - Testar ponta a ponta com MongoDB real (aqui foram testados o motor, os parsers e as regras de negócio).
-- Trocar o storage local por S3/GCS com SSE-KMS.
+- PDFs: com `S3_BUCKET`, `S3_ENDPOINT`, `S3_ACCESS_KEY_ID` e `S3_SECRET_ACCESS_KEY` no Render, vão para o Cloudflare R2 (ou qualquer S3), cifrados com AES-256-GCM antes do envio. Sem essas variáveis, ficam no disco local, que o Render free apaga.
 - Converter o contrato em PDF e integrar assinatura eletrônica.
 - Confirmar as rotas da Evolution API/Z-API na versão contratada.
 
