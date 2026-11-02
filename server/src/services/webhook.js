@@ -6,7 +6,7 @@ import { decrypt } from './crypto.js';
 export async function enviarWebhook(contador, payload) {
   if (!contador.webhook?.url) return { pulado: true };
   const corpo = JSON.stringify(payload);
-  const segredo = contador.webhook.segredoEnc ? decrypt(contador.webhook.segredoEnc) : '';
+  const segredo = contador.webhook.segredo_cifrado ? decrypt(contador.webhook.segredo_cifrado) : '';
   const assinatura = crypto.createHmac('sha256', segredo).update(corpo).digest('hex');
   const res = await fetch(contador.webhook.url, {
     method: 'POST',

@@ -5,8 +5,8 @@ import relatorioBase from './demo-relatorio.json';
 import { alertaComercial, roteiroCliente } from './notificacao.js';
 
 const CHAVE = 'recupera:demo';
-const CONTADOR = { _id: 'demo', escritorio: 'Escritório Demonstração', responsavel: 'Contador Demo', crc: 'CRC-XX 000000/O-0', email: 'demo@recupera.app', slugLink: 'demo' };
-export const CREDENCIAIS_DEMO = { email: 'demo@recupera.app', apiKey: 'demo-recupera-2026' };
+const CONTADOR = { _id: 'demo', nome_escritorio: 'Escritório Demonstração', nome_responsavel: 'Contador Demo', crc: 'CRC-XX 000000/O-0', email: 'demo@recupera.app', slug_link: 'demo' };
+export const CREDENCIAIS_DEMO = { email: 'demo@recupera.app', senha: 'demo-recupera-2026' };
 
 const espera = (ms = 350) => new Promise((r) => setTimeout(r, ms));
 const ler = () => { try { return JSON.parse(localStorage.getItem(CHAVE)) || { leads: [] }; } catch { return { leads: [] }; } };
@@ -40,7 +40,7 @@ function relatorioDe(l) {
 }
 
 export const demoApi = {
-  async convite() { await espera(); return { escritorio: CONTADOR.escritorio, responsavel: CONTADOR.responsavel, crc: CONTADOR.crc, termoVersao: 'demo' }; },
+  async convite() { await espera(); return { escritorio: CONTADOR.nome_escritorio, responsavel: CONTADOR.nome_responsavel, crc: CONTADOR.crc, termoVersao: 'demo' }; },
   async criarLead(_slug, { nome, profissao, whatsapp }) {
     await espera();
     const db = ler();
@@ -77,10 +77,10 @@ export const demoApi = {
     return { registrado: true, prazoAte: new Date(Date.now() + 15 * 864e5).toISOString().slice(0, 10) };
   },
 
-  async login({ email, apiKey }) {
+  async login({ email, senha }) {
     await espera();
-    if (email.toLowerCase() !== CREDENCIAIS_DEMO.email || apiKey !== CREDENCIAIS_DEMO.apiKey) throw erro('CREDENCIAIS_INVALIDAS', 'E-mail ou chave incorretos.');
-    return { token: 'demo', escritorio: CONTADOR.escritorio, slugLink: CONTADOR.slugLink };
+    if (email.toLowerCase() !== CREDENCIAIS_DEMO.email || senha !== CREDENCIAIS_DEMO.senha) throw erro('CREDENCIAIS_INVALIDAS', 'E-mail ou chave incorretos.');
+    return { token: 'demo', escritorio: CONTADOR.nome_escritorio, slugLink: CONTADOR.slug_link };
   },
   async analises() {
     await espera();
@@ -108,7 +108,7 @@ export const demoApi = {
     await espera();
     const { l } = lead(leadId);
     if (l.status === 'CONCLUIDO') atualizar(leadId, { status: 'CONTRATO_ENVIADO' });
-    return `# Contrato de honorários de êxito (DEMONSTRAÇÃO)\n\nContratante: ${l.nome}\nContratado: ${CONTADOR.escritorio}\n\nNo modo demonstração o contrato completo não é gerado. Com a API no ar, este botão baixa a minuta preenchida (templates/contrato.md).\n`;
+    return `# Contrato de honorários de êxito (DEMONSTRAÇÃO)\n\nContratante: ${l.nome}\nContratado: ${CONTADOR.nome_escritorio}\n\nNo modo demonstração o contrato completo não é gerado. Com a API no ar, este botão baixa a minuta preenchida (templates/contrato.md).\n`;
   },
   async mudarStatus(leadId, status) { await espera(); atualizar(leadId, { status }); return { status }; },
   async copiaEntregue(leadId) { await espera(); atualizar(leadId, { solicitacoes: [] }); return { ok: true }; },

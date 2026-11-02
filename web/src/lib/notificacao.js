@@ -32,6 +32,7 @@ export function alertaComercial(rel) {
   if (g.perdaMediaMensalSemProtocolo > 0) itens.push(`Sem protocolo, perde em média ${brl(g.perdaMediaMensalSemProtocolo)} por mês nos próximos 12 meses.`);
   if (g.bitributacaoDesde) itens.push(`Desconto acima do teto desde ${mesAno(g.bitributacaoDesde)} (mais de um vínculo).`);
   if ((rel.alertas || []).some((a) => a.tipo === 'DESCONTO_ATIVO')) itens.push('O desconto em excesso continua acontecendo todo mês.');
+  if (rel.extracao && rel.extracao.score < 70) itens.unshift(`REVISÃO MANUAL: leitura dos PDFs com confiança ${rel.extracao.score}/100. Confira os documentos antes de falar com o cliente.`);
   return { prioridade, itens };
 }
 
@@ -43,13 +44,13 @@ export function payloadWebhook({ lead, relatorio, contador, painelUrl }) {
     versao: 1,
     ocorridoEm: new Date().toISOString(),
     idempotencyKey: relatorio.idempotencyKey,
-    contador: { id: String(contador._id), escritorio: contador.escritorio },
+    contador: { id: String(contador._id), escritorio: contador.nome_escritorio },
     lead: {
       id: String(lead._id),
       nome: lead.nome,
       profissao: lead.profissao,
       whatsapp: lead.whatsapp,
-      consentimento: { versaoTermo: lead.consentimento?.versaoTermo, aceitoEm: lead.consentimento?.aceitoEm },
+      consentimento: { versaoTermo: lead.consentimento_lgpd?.versao_termo, aceitoEm: lead.consentimento_lgpd?.data_hora },
     },
     resultado: {
       recuperavelOnline: relatorio.recuperavelOnline,
@@ -100,7 +101,7 @@ export function roteiroCliente({ lead, relatorio, contador }) {
     ? ` O primeiro mês recuperável (${mesAno(g.proximaCompetenciaAVencer)}) prescreve em ${g.diasParaPrescrever} dias, e a cada mês sem pedido um valor deixa de poder ser recuperado.`
     : '';
   return [
-    `Olá, ${tratamento(lead.nome, lead.profissao)}, sou ${contador.responsavel}, seu contador parceiro do RECUPERA.`,
+    `Olá, ${tratamento(lead.nome, lead.profissao)}, sou ${contador.nome_responsavel}, seu contador parceiro do RECUPERA.`,
     `Acabamos de rodar a auditoria digital dos seus últimos 5 anos de INSS e encontramos indício de cerca de ${brl(relatorio.recuperavelOnline)} pagos acima do teto, que podem ser pedidos de volta à Receita Federal.${prazo}`,
     'Posso te enviar o relatório detalhado e explicar em 10 minutos como funciona o pedido? Você só paga honorários se o valor for efetivamente restituído ou compensado.',
   ].join('\n\n');
