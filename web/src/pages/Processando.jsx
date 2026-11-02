@@ -1,0 +1,74 @@
+import { useEffect, useState } from 'react';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { api, sessaoLead } from '../lib/api.js';
+import { Aviso, Tela } from '../components/ui.jsx';
+
+const ETAPAS = ['Validando a integridade dos PDFs', 'Mapeando vínculos simultâneos', 'Cruzando cada mês com o teto do ano', 'Consolidando o relatório do especialista'];
+
+export default function Processando() {
+  const { slug } = useParams();
+  const nav = useNavigate();
+  const s = sessaoLead.get();
+  const [pct, setPct] = useState(4);
+  const [erro, setErro] = useState('');
+
+  // Barra avança sozinha até 90% e só fecha quando o servidor confirma.
+  useEffect(() => {
+    const t = setInterval(() => setPct((p) => (p < 90 ? p + 2 : p)), 400);
+    return () => clearInterval(t);
+  }, []);
+
+  // Polling com backoff leve (2s → 6s), para no fim ou no erro.
+  useEffect(() => {
+    if (!s?.leadId) return undefined;
+    let ativo = true; let espera = 2000;
+    const tick = async () => {
+      try {
+        const r = await api.status(s.leadId);
+        if (!ativo) return;
+        if (r.status === 'CONCLUIDO' || r.status === 'CONTRATO_ENVIADO' || r.status === 'PROTOCOLADO') {
+          sessaoLead.set({ indicio: r.indicio });
+          setPct(100);
+          setTimeout(() => nav(`/c/${slug}/concluido`), 600);
+          return;
+        }
+        if (r.status === 'ERRO') { setErro('Não conseguimos ler o CNIS. Seu contador vai revisar o arquivo e falar com você.'); return; }
+      } catch (e) { setErro(e.message); return; }
+      espera = Math.min(espera * 1.3, 6000);
+      setTimeout(() => ativo && tick(), espera);
+    };
+    tick();
+    return () => { ativo = false; };
+  }, [s?.leadId, slug, nav]);
+
+  if (!s?.leadId) return <Navigate to={`/c/${slug}`} replace />;
+  const atual = Math.min(ETAPAS.length - 1, Math.floor(pct / 25));
+
+  return (
+    <Tela etapa="3 de 3">
+      <p className="font-titulo text-6xl font-semibold text-esmeralda-texto">{pct}%</p>
+      <h1 className="titulo mt-4">Analisando suas contribuições.</h1>
+      <p className="apoio mt-3">De 30 a 90 segundos. Pode manter a tela aberta.</p>
+
+      <div className="mt-8 h-1.5 w-full overflow-hidden rounded-full bg-white/60">
+        <div className="h-full rounded-full bg-esmeralda shadow-neon transition-all duration-500" style={{ width: `${pct}%` }} />
+      </div>
+
+      <ol className="vidro mt-8 space-y-4 p-5">
+        {ETAPAS.map((e, i) => {
+          const feito = i < atual || pct === 100; const ativo = i === atual && pct < 100;
+          return (
+            <li key={e} className={`flex items-center gap-3 ${ativo ? 'font-medium text-esmeralda-texto' : 'font-light'} ${!ativo && !feito ? 'opacity-30' : ''} ${feito ? 'opacity-40' : ''}`}>
+              <span className={`h-2 w-2 rounded-full ${ativo || feito ? 'bg-esmeralda' : 'bg-grafite/30'} ${ativo ? 'pulso' : ''}`} />{e}
+            </li>
+          );
+        })}
+      </ol>
+
+      <p className="mt-6 rounded-card bg-ambar-fundo/40 px-4 py-3 text-sm text-ambar-escuro">
+        Prazo legal de 5 anos contado da data de cada pagamento. O que já passou desse prazo não entra no pedido.
+      </p>
+      <div className="mt-4"><Aviso>{erro}</Aviso></div>
+    </Tela>
+  );
+}

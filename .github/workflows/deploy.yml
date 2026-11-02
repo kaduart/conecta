@@ -1,0 +1,38 @@
+# Merge na main -> roda os testes -> publica o front direto na Vercel (produção).
+# Precisa de 1 secret só: VERCEL_TOKEN (vercel.com/account/tokens).
+# Na primeira execução o projeto "recupera" é criado na Vercel automaticamente.
+name: Deploy Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-producao
+  cancel-in-progress: false
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: server } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm, cache-dependency-path: server/package-lock.json }
+      - run: npm ci
+      - run: npm test
+
+  publicar:
+    needs: testes
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: web } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm i -g vercel@39
+      - name: Vincular (cria o projeto na 1ª vez)
+        run: vercel link --yes --project recupera --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Publicar em produção
+        run: vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }} --build-env VITE_API_URL=${{ vars.VITE_API_URL }}
