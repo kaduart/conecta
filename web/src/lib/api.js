@@ -1,5 +1,9 @@
 // Cliente HTTP. Lead: X-Lead-Token (sessionStorage). Contador: Bearer JWT (localStorage).
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000/v1';
+import { demoApi } from './demo.js';
+
+// Sem VITE_API_URL o app roda em modo demonstração (API simulada no navegador).
+export const DEMO = !import.meta.env.VITE_API_URL || import.meta.env.VITE_DEMO === '1';
+const BASE = import.meta.env.VITE_API_URL;
 
 const ler = (store, k) => { try { return JSON.parse(store.getItem(k)); } catch { return null; } };
 const gravar = (store, k, v) => { try { v == null ? store.removeItem(k) : store.setItem(k, JSON.stringify(v)); } catch { /* modo privado */ } };
@@ -42,7 +46,7 @@ async function req(caminho, { metodo = 'GET', corpo, form, auth } = {}) {
   return dados;
 }
 
-export const api = {
+const apiReal = {
   convite: (slug) => req(`/i/${slug}`),
   criarLead: (slug, corpo) => req(`/i/${slug}/leads`, { metodo: 'POST', corpo }),
   consentir: (id, corpo) => req(`/leads/${id}/consent`, { metodo: 'POST', corpo, auth: 'lead' }),
@@ -63,3 +67,5 @@ export const api = {
     return res.blob();
   },
 };
+
+export const api = DEMO ? demoApi : apiReal;

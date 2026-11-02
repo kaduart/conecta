@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api, sessaoContador } from '../lib/api.js';
+import { api, sessaoContador, DEMO } from '../lib/api.js';
+import { CREDENCIAIS_DEMO } from '../lib/demo.js';
 import { Aviso, Tela } from '../components/ui.jsx';
 
 export default function Login() {
   const nav = useNavigate();
-  const [form, setForm] = useState({ email: '', apiKey: '' });
+  const [form, setForm] = useState(DEMO ? CREDENCIAIS_DEMO : { email: '', apiKey: '' });
   const [erro, setErro] = useState('');
   const [enviando, setEnviando] = useState(false);
 
