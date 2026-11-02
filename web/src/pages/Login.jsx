@@ -21,7 +21,7 @@ export default function Login() {
   return (
     <Tela lateral={(
       <Foto src={FOTO_CONTADOR} className="aspect-[16/10] lg:aspect-[4/5]">
-        <figcaption className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
+        <figcaption className="absolute inset-x-0 bottom-0 hidden p-6 text-white sm:block sm:p-8">
           <p className="font-titulo text-2xl leading-tight sm:text-3xl">A carteira inteira, com o prazo de cada cliente.</p>
           <p className="mt-2 text-sm text-white/80">Quem vence primeiro, quanto se recupera e a abordagem pronta.</p>
         </figcaption>

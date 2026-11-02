@@ -20,12 +20,12 @@ export function Tela({ etapa, children, rodape, lateral }) {
     <main className={`seguro mx-auto flex min-h-dvh w-full flex-col px-5 sm:px-8 ${largo ? 'max-w-6xl' : 'max-w-md sm:max-w-lg'}`}>
       <header className="flex items-center justify-between py-4">
         <Marca />
-        {etapa ? <span className="text-sm text-apoio tabular-nums">{etapa}</span> : <Selo />}
+        {etapa ? <Etapas texto={etapa} /> : <Selo />}
       </header>
       {largo ? (
-        <div className="grid flex-1 gap-10 pt-8 lg:grid-cols-12 lg:items-center lg:gap-16 lg:pt-0">
-          <div className="lg:col-span-7">{lateral}</div>
-          <div className="lg:col-span-5">{children}</div>
+        <div className="grid flex-1 grid-cols-1 gap-10 pt-8 lg:grid-cols-12 lg:items-center lg:gap-16 lg:pt-0">
+          <div className="min-w-0 lg:col-span-7">{lateral}</div>
+          <div className="min-w-0 lg:col-span-5">{children}</div>
         </div>
       ) : (
         <div className="flex flex-1 flex-col pt-8">{children}</div>
@@ -75,5 +75,22 @@ export function Foto({ src, alt = '', className = '', children }) {
       <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-grafite/45 via-transparent to-transparent" />
       {children}
     </figure>
+  );
+}
+
+/** "Etapa 2 de 3" com três traços: feitos em esmeralda, o atual em grafite. */
+function Etapas({ texto }) {
+  const [, atual, total] = String(texto).match(/(\d+)\s*de\s*(\d+)/) || [];
+  return (
+    <span className="flex items-center gap-3 text-sm text-apoio tabular-nums">
+      {total && (
+        <span className="flex gap-1" aria-hidden>
+          {Array.from({ length: Number(total) }, (_, i) => (
+            <span key={i} className={`h-1 w-6 rounded-full ${i + 1 < atual ? 'bg-esmeralda' : i + 1 == atual ? 'bg-grafite' : 'bg-grafite/15'}`} />
+          ))}
+        </span>
+      )}
+      {texto}
+    </span>
   );
 }
