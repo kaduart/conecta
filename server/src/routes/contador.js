@@ -26,6 +26,11 @@ contador.post('/login', wrap(async (req, res) => {
 
 // Primeiro acesso: cria o PRIMEIRO contador pela tela, sem script nem variável.
 // Só funciona enquanto o banco não tem nenhum contador; depois disso responde 403.
+export function gerarSlug(txt) {
+  return String(txt).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40).replace(/-+$/, '');
+}
+
 contador.get('/primeiro-acesso', wrap(async (_req, res) => {
   res.json({ disponivel: (await Contador.estimatedDocumentCount()) === 0 });
 }));
@@ -37,9 +42,12 @@ contador.post('/primeiro-acesso', wrap(async (req, res) => {
     crc: z.string().min(4).max(40),
     email: z.string().email(),
     whatsapp: z.string().transform((s) => s.replace(/\D/g, '')).transform((s) => (s.startsWith('55') ? s : `55${s}`)).refine((s) => /^55\d{10,11}$/.test(s), 'WhatsApp inválido'),
-    slug_link: z.string().toLowerCase().regex(/^[a-z0-9-]{3,40}$/),
+    slug_link: z.string().optional().default(''),
     senha: z.string().min(10).max(200),
   }).parse(req.body);
+  // Link vazio: gera a partir do nome do escritório ("Kadu Art Systems" -> "kadu-art-systems").
+  b.slug_link = gerarSlug(b.slug_link || b.nome_escritorio);
+  if (!/^[a-z0-9-]{3,40}$/.test(b.slug_link)) throw new HttpError(422, 'VALIDACAO', { campos: { slug_link: ['Use de 3 a 40 letras, números ou hífen'] } });
   if ((await Contador.countDocuments()) > 0) throw new HttpError(403, 'PRIMEIRO_ACESSO_ENCERRADO');
   const { senha, ...dados } = b;
   const c = await Contador.create({ ...dados, password_hash: await hashSenha(senha) });
