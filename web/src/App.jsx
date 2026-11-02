@@ -7,11 +7,14 @@ import Concluido from './pages/Concluido.jsx';
 import Login from './pages/Login.jsx';
 import Painel from './pages/Painel.jsx';
 import Detalhe from './pages/Detalhe.jsx';
+import { DEMO } from './lib/api.js';
+import FaixaDemo from './components/FaixaDemo.jsx';
 
 export default function App() {
   return (
     <>
       <div className="malha" aria-hidden />
+      {DEMO && <FaixaDemo />}
       <Routes>
         {/* Fluxo do cliente: link do contador /c/:slug */}
         <Route path="/c/:slug" element={<Convite />} />
