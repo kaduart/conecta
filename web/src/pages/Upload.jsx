@@ -1,8 +1,7 @@
 import { useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
-import { Aviso, FotoEsmaecida, Icone, Tela } from '../components/ui.jsx';
-import { FOTO_CLIENTE_ALT } from '../lib/imagens.js';
+import { Aviso, Icone, Tela } from '../components/ui.jsx';
 
 const BLOCOS = [
   { tipo: 'CNIS', titulo: 'Extrato CNIS', ajuda: 'Baixe o PDF em 1 minuto no app Meu INSS', multiplo: false, obrigatorio: true },
@@ -86,7 +85,6 @@ export default function Upload() {
       <h1 className="titulo-hero max-w-[14ch]">Três PDFs e a conta está feita.</h1>
       <p className="mt-5 max-w-[44ch] text-lg leading-relaxed text-apoio">O CNIS mostra quanto cada empresa recolheu por mês. Os informes confirmam os valores. O IRPF é opcional.</p>
       <p className="mt-6"><a className="link text-[15px]" href="https://meu.inss.gov.br" target="_blank" rel="noreferrer">Como baixar o CNIS no Meu INSS</a></p>
-      <FotoEsmaecida src={FOTO_CLIENTE_ALT} />
     </>
   );
 
