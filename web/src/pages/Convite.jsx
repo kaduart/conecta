@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
-import { Aviso, Carregando, Tela } from '../components/ui.jsx';
+import { Aviso, Carregando, Foto, Tela } from '../components/ui.jsx';
+import { FOTO_CLIENTE } from '../lib/imagens.js';
 import Regua from '../components/Regua.jsx';
 import { proximaPrescricao } from '../lib/prazo.js';
 
@@ -44,6 +45,7 @@ export default function Convite() {
 
   const editorial = (
     <>
+      <Foto src={FOTO_CLIENTE} className="mb-8 aspect-[4/3] lg:hidden" />
       {convite && <p className="text-[15px] text-apoio">Convite de {convite.escritorio}, {/^crc/i.test(convite.crc) ? convite.crc : `CRC ${convite.crc}`}</p>}
       <h1 className="titulo-hero mt-4 max-w-[14ch]">Seu INSS pago a mais tem prazo para voltar.</h1>
       <p className="mt-5 max-w-[44ch] text-lg leading-relaxed text-apoio">
@@ -56,8 +58,9 @@ export default function Convite() {
 
   return (
     <Tela lateral={editorial} rodape="Leva cerca de 5 minutos. Não pedimos sua senha do gov.br.">
+      <Foto src={FOTO_CLIENTE} className="hidden aspect-[4/5] lg:block" />
       {convite && (
-        <form onSubmit={enviar} className="cartao space-y-6 p-7 sm:p-10" noValidate>
+        <form onSubmit={enviar} className="cartao relative space-y-6 p-7 sm:p-10 lg:-mt-56 lg:mx-5" noValidate>
           <div>
             <h2 className="font-titulo text-2xl font-medium">Começar a análise</h2>
             <p className="mt-1 text-[15px] text-apoio">Seu contador recebe o resultado.</p>

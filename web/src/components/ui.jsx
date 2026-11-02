@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Eye, Clock, ShieldCheck, FileText, Check, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -62,4 +63,17 @@ const ICONES = { olho: Eye, relogio: Clock, escudo: ShieldCheck, documento: File
 export function Icone({ nome, className = 'h-5 w-5' }) {
   const C = ICONES[nome] || Check;
   return <C className={className} strokeWidth={1.5} aria-hidden />;
+}
+
+/** Foto editorial com moldura e véu suave; some sozinha se a imagem não carregar. */
+export function Foto({ src, alt = '', className = '', children }) {
+  const [ok, setOk] = useState(true);
+  if (!ok) return null;
+  return (
+    <figure className={`relative overflow-hidden rounded-2xl bg-grafite/5 shadow-[0_30px_60px_-24px_rgba(31,42,46,0.35)] ${className}`}>
+      <img src={src} alt={alt} onError={() => setOk(false)} className="absolute inset-0 h-full w-full object-cover" decoding="async" />
+      <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-grafite/45 via-transparent to-transparent" />
+      {children}
+    </figure>
+  );
 }
