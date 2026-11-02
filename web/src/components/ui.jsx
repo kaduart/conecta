@@ -94,3 +94,17 @@ function Etapas({ texto }) {
     </span>
   );
 }
+
+/** Foto que se dissolve no fundo: opacidade baixa e máscara nas bordas, sem moldura. */
+export function FotoEsmaecida({ src, className = 'h-56 sm:h-72 lg:h-80', posicao = 'center 30%' }) {
+  const [ok, setOk] = useState(true);
+  if (!ok) return null;
+  const mascara = 'radial-gradient(ellipse 75% 70% at 45% 45%, #000 35%, transparent 78%)';
+  return (
+    <div aria-hidden className={`pointer-events-none relative mt-8 overflow-hidden lg:mt-10 ${className}`}>
+      <img src={src} alt="" onError={() => setOk(false)} decoding="async"
+        className="h-full w-full object-cover opacity-60 saturate-[.85]"
+        style={{ objectPosition: posicao, maskImage: mascara, WebkitMaskImage: mascara }} />
+    </div>
+  );
+}

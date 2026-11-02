@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
-import { Aviso, Icone, Tela } from '../components/ui.jsx';
+import { Aviso, FotoEsmaecida, Icone, Tela } from '../components/ui.jsx';
+import { FOTO_CLIENTE } from '../lib/imagens.js';
 import { proximaPrescricao } from '../lib/prazo.js';
 import Regua from '../components/Regua.jsx';
 
@@ -56,6 +57,7 @@ export default function Concluido() {
           <button className="btn-secundario border border-grafite/10" onClick={pedirCopia}>Pedir cópia do relatório</button>
         )}
       </div>
+      <FotoEsmaecida src={FOTO_CLIENTE} className="h-56 sm:h-64" posicao="center 25%" />
     </Tela>
   );
 }

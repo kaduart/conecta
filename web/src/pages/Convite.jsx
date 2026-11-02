@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
-import { Aviso, Carregando, Tela } from '../components/ui.jsx';
+import { Aviso, Carregando, FotoEsmaecida, Tela } from '../components/ui.jsx';
 import { FOTO_CLIENTE } from '../lib/imagens.js';
 import Regua from '../components/Regua.jsx';
 import { proximaPrescricao } from '../lib/prazo.js';
@@ -101,15 +101,3 @@ function NotaPrazo() {
   );
 }
 
-// Foto que se dissolve no fundo: opacidade baixa e máscara nas bordas, sem moldura.
-function FotoEsmaecida({ src }) {
-  const [ok, setOk] = useState(true);
-  if (!ok) return null;
-  return (
-    <div aria-hidden className="pointer-events-none relative mt-8 h-56 overflow-hidden sm:h-72 lg:mt-10 lg:h-80">
-      <img src={src} alt="" onError={() => setOk(false)} decoding="async"
-        className="h-full w-full object-cover object-[center_30%] opacity-60 saturate-[.85]"
-        style={{ maskImage: 'radial-gradient(ellipse 75% 70% at 45% 45%, #000 35%, transparent 78%)', WebkitMaskImage: 'radial-gradient(ellipse 75% 70% at 45% 45%, #000 35%, transparent 78%)' }} />
-    </div>
-  );
-}

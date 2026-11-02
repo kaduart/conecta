@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
-import { Aviso, Icone, Tela } from '../components/ui.jsx';
+import { Aviso, FotoEsmaecida, Icone, Tela } from '../components/ui.jsx';
+import { FOTO_DOCUMENTOS } from '../lib/imagens.js';
 
 export default function Consentimento() {
   const { slug } = useParams();
@@ -30,6 +31,7 @@ export default function Consentimento() {
     <>
       <h1 className="titulo-hero max-w-[16ch]">Seus documentos servem a uma coisa só.</h1>
       <p className="mt-5 max-w-[44ch] text-lg leading-relaxed text-apoio">Calcular o INSS pago acima do teto e os ajustes no seu IRPF. Nada além disso.</p>
+      <FotoEsmaecida src={FOTO_DOCUMENTOS} className="h-48 sm:h-60 lg:h-64" />
       <ul className="vidro mt-10 space-y-6 p-8 sm:p-10">
         {itens.map(([icone, t, d]) => (
           <li key={t} className="flex gap-4">
