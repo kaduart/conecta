@@ -16,6 +16,7 @@ export default function PainelLayout({ children }) {
             onClick={() => navigator.share ? navigator.share({ title: 'RECUPERA', url: convite }) : navigator.clipboard.writeText(convite)}>
             Compartilhar convite
           </button>
+          <Link to="/painel/senha" className="px-2 py-2.5 text-sm font-light text-apoio">Trocar senha</Link>
           <button className="px-2 py-2.5 text-sm font-light text-apoio" onClick={() => { sessaoContador.limpar(); nav('/painel/login'); }}>Sair</button>
         </div>
       </header>

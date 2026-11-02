@@ -24,7 +24,8 @@ const MENSAGENS = {
   CONSENTIMENTO_PENDENTE: 'Falta autorizar o uso dos dados.',
   CNIS_OBRIGATORIO: 'Anexe o extrato CNIS para continuar.',
   VALIDACAO: 'Confira os campos destacados.',
-  CREDENCIAIS_INVALIDAS: 'E-mail ou chave incorretos.',
+  CREDENCIAIS_INVALIDAS: 'E-mail ou senha incorretos.',
+  SENHA_ATUAL_INCORRETA: 'A senha atual não confere.',
   TOKEN_INVALIDO: 'Sua sessão expirou. Entre de novo.',
   PRIMEIRO_ACESSO_ENCERRADO: 'O primeiro acesso já foi feito. Entre com e-mail e senha.',
 };
@@ -63,6 +64,7 @@ const apiReal = {
   analise: (id) => req(`/contador/analises/${id}`, { auth: 'contador' }),
   contrato: (id) => req(`/contador/analises/${id}/contrato`, { auth: 'contador' }),
   mudarStatus: (id, status) => req(`/contador/analises/${id}/status`, { metodo: 'PATCH', corpo: { status }, auth: 'contador' }),
+  trocarSenha: (corpo) => req('/contador/senha', { metodo: 'PATCH', corpo, auth: 'contador' }),
   copiaEntregue: (id) => req(`/contador/analises/${id}/copia-entregue`, { metodo: 'POST', auth: 'contador' }),
   async baixarCsv(id) {
     const res = await fetch(`${BASE}/contador/analises/${id}/perdcomp.csv`, { headers: { Authorization: `Bearer ${sessaoContador.get()?.token}` } });

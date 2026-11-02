@@ -6,6 +6,7 @@ import Processando from './pages/Processando.jsx';
 import Concluido from './pages/Concluido.jsx';
 import Login from './pages/Login.jsx';
 import PrimeiroAcesso from './pages/PrimeiroAcesso.jsx';
+import TrocarSenha from './pages/TrocarSenha.jsx';
 import Painel from './pages/Painel.jsx';
 import Detalhe from './pages/Detalhe.jsx';
 import { DEMO } from './lib/api.js';
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/painel/login" element={<Login />} />
         <Route path="/painel/primeiro-acesso" element={<PrimeiroAcesso />} />
         <Route path="/painel" element={<Painel />} />
+        <Route path="/painel/senha" element={<TrocarSenha />} />
         <Route path="/painel/:id" element={<Detalhe />} />
         <Route path="*" element={<Navigate to="/painel" replace />} />
       </Routes>
