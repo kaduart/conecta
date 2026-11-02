@@ -3,6 +3,7 @@ dist/
 .env
 .env.*
 !.env.example
+!web/.env.production
 server/storage/
 .vercel/
 .DS_Store
