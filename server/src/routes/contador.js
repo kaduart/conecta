@@ -56,6 +56,16 @@ contador.post('/primeiro-acesso', wrap(async (req, res) => {
 
 contador.use(exigirContador);
 
+// Troca de senha do próprio contador (exige a senha atual).
+contador.patch('/senha', wrap(async (req, res) => {
+  const b = z.object({ senha_atual: z.string().min(1), senha_nova: z.string().min(10).max(200) }).parse(req.body);
+  const c = await Contador.findById(req.contadorId).select('+password_hash');
+  if (!c || !(await conferirSenha(b.senha_atual, c.password_hash))) throw new HttpError(403, 'SENHA_ATUAL_INCORRETA') // 403, não 401: o front desloga em 401;
+  c.password_hash = await hashSenha(b.senha_nova);
+  await c.save();
+  res.json({ ok: true });
+}));
+
 async function carregar(req, extraLead = '') {
   const lead = await Lead.findOne({ _id: req.params.id, contador_id: req.contadorId }).select(extraLead);
   if (!lead) throw new HttpError(404, 'LEAD_NAO_ENCONTRADO');
