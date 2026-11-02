@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
 import { ArrowRight } from 'lucide-react';
-import { Aviso, Icone, Tela } from '../components/ui.jsx';
+import { Aviso, BlocoEditorial, Icone, Tela } from '../components/ui.jsx';
 import { FOTO_DOCUMENTOS } from '../lib/imagens.js';
 
 const BLOCOS = [
@@ -54,13 +54,6 @@ function Bloco({ bloco, arquivos, onChange }) {
   );
 }
 
-const MASCARA_FOTO = {
-  maskImage: 'linear-gradient(to bottom, transparent, #000 35%, #000 60%, transparent), linear-gradient(to right, transparent, #000 22%, #000 78%, transparent)',
-  WebkitMaskImage: 'linear-gradient(to bottom, transparent, #000 35%, #000 60%, transparent), linear-gradient(to right, transparent, #000 22%, #000 78%, transparent)',
-  maskComposite: 'intersect',
-  WebkitMaskComposite: 'source-in',
-};
-
 export default function Upload() {
   const { slug } = useParams();
   const nav = useNavigate();
@@ -68,7 +61,6 @@ export default function Upload() {
   const [arquivos, setArquivos] = useState({ CNIS: [], INFORME: [], IRPF: [] });
   const [erro, setErro] = useState('');
   const [enviando, setEnviando] = useState(false);
-  const [fotoOk, setFotoOk] = useState(true);
   if (!s?.leadId) return <Navigate to={`/c/${slug}`} replace />;
 
   const pronto = arquivos.CNIS.length > 0 && arquivos.INFORME.length > 0;
@@ -90,25 +82,15 @@ export default function Upload() {
     } catch (e) { setErro(e.message); } finally { setEnviando(false); }
   }
 
-  // Título flutuando sobre a foto, que se funde ao off-white por baixo e pelas laterais.
   const editorial = (
-    <div className="relative isolate flex min-h-[460px] flex-col sm:min-h-[520px] lg:min-h-[640px]">
-      <div aria-hidden className="absolute -left-10 -top-10 -z-10 h-72 w-72 rounded-full bg-esmeralda-brilho/10 blur-[120px]" />
-      <div className="relative z-10 max-w-lg space-y-6">
-        <h1 className="font-titulo text-4xl font-normal leading-[1.1] tracking-tight text-grafite lg:text-5xl">Três PDFs e a<br />conta está feita.</h1>
-        <p className="text-base font-light leading-relaxed text-apoio lg:text-lg">O CNIS mostra quanto cada empresa recolheu por mês. Os informes confirmam os valores. O IRPF é opcional.</p>
-        <a href="https://meu.inss.gov.br" target="_blank" rel="noreferrer" className="group inline-flex items-center text-sm font-medium text-esmeralda-texto transition-colors duration-200 hover:text-esmeralda">
-          Como baixar o CNIS no Meu INSS
-          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" strokeWidth={1.5} />
-        </a>
-      </div>
-      {fotoOk && (
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[60%] opacity-85 lg:h-[55%]">
-          {/* Máscara (e não sobreposição de cor): funde a foto ao fundo sem deixar borda de caixa. */}
-          <img src={FOTO_DOCUMENTOS} alt="" onError={() => setFotoOk(false)} decoding="async" className="h-full w-full object-cover object-top" style={MASCARA_FOTO} />
-        </div>
-      )}
-    </div>
+    <BlocoEditorial foto={FOTO_DOCUMENTOS}>
+      <h1 className="font-titulo text-4xl font-normal leading-[1.1] tracking-tight text-grafite lg:text-5xl">Três PDFs e a<br />conta está feita.</h1>
+      <p className="text-base font-light leading-relaxed text-apoio lg:text-lg">O CNIS mostra quanto cada empresa recolheu por mês. Os informes confirmam os valores. O IRPF é opcional.</p>
+      <a href="https://meu.inss.gov.br" target="_blank" rel="noreferrer" className="group inline-flex items-center text-sm font-medium text-esmeralda-texto transition-colors duration-200 hover:text-esmeralda">
+        Como baixar o CNIS no Meu INSS
+        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" strokeWidth={1.5} />
+      </a>
+    </BlocoEditorial>
   );
 
   return (

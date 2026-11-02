@@ -99,12 +99,40 @@ function Etapas({ texto }) {
 export function FotoEsmaecida({ src, className = 'h-56 sm:h-72 lg:h-80', posicao = 'center 30%' }) {
   const [ok, setOk] = useState(true);
   if (!ok) return null;
-  const mascara = 'radial-gradient(ellipse 75% 70% at 45% 45%, #000 35%, transparent 78%)';
+  // Duas máscaras lineares cruzadas: some por cima, por baixo e pelas laterais, sem borda de caixa.
+  const mascara = 'linear-gradient(to bottom, transparent, #000 35%, #000 62%, transparent), linear-gradient(to right, transparent, #000 30%, #000 75%, transparent)';
   return (
     <div aria-hidden className={`pointer-events-none relative mt-8 overflow-hidden lg:mt-10 ${className}`}>
       <img src={src} alt="" onError={() => setOk(false)} decoding="async"
-        className="h-full w-full object-cover opacity-60 saturate-[.85]"
-        style={{ objectPosition: posicao, maskImage: mascara, WebkitMaskImage: mascara }} />
+        className="h-full w-full object-cover opacity-80 saturate-[.9]"
+        style={{ objectPosition: posicao, maskImage: mascara, WebkitMaskImage: mascara, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }} />
+    </div>
+  );
+}
+
+const MASCARA_FUNDO = {
+  maskImage: 'linear-gradient(to bottom, transparent, #000 35%, #000 60%, transparent), linear-gradient(to right, transparent, #000 22%, #000 78%, transparent)',
+  WebkitMaskImage: 'linear-gradient(to bottom, transparent, #000 35%, #000 60%, transparent), linear-gradient(to right, transparent, #000 22%, #000 78%, transparent)',
+  maskComposite: 'intersect',
+  WebkitMaskComposite: 'source-in',
+};
+
+/**
+ * Bloco editorial da esquerda: o texto flutua (z-10) e a foto fica de fundo, absoluta,
+ * fundida ao off-white por máscara. `rodape` fica embaixo, por cima da foto.
+ */
+export function BlocoEditorial({ foto, children, rodape, className = 'min-h-[480px] sm:min-h-[540px] lg:min-h-[660px]' }) {
+  const [ok, setOk] = useState(true);
+  return (
+    <div className={`relative isolate flex flex-col justify-between ${className}`}>
+      <div aria-hidden className="absolute -left-10 -top-10 -z-10 h-72 w-72 rounded-full bg-esmeralda-brilho/10 blur-[120px]" />
+      <div className="relative z-10 max-w-xl space-y-6">{children}</div>
+      {rodape && <div className="relative z-10 mt-10">{rodape}</div>}
+      {foto && ok && (
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[62%] opacity-85 lg:h-[58%]">
+          <img src={foto} alt="" onError={() => setOk(false)} decoding="async" className="h-full w-full object-cover object-top" style={MASCARA_FUNDO} />
+        </div>
+      )}
     </div>
   );
 }

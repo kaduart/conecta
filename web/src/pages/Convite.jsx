@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
-import { Aviso, Carregando, FotoEsmaecida, Tela } from '../components/ui.jsx';
+import { Aviso, BlocoEditorial, Carregando, Tela } from '../components/ui.jsx';
 import { FOTO_CLIENTE } from '../lib/imagens.js';
 import Regua from '../components/Regua.jsx';
 import { proximaPrescricao } from '../lib/prazo.js';
@@ -45,14 +45,15 @@ export default function Convite() {
 
   const editorial = (
     <>
+    <BlocoEditorial foto={FOTO_CLIENTE} className="min-h-[470px] sm:min-h-[520px] lg:min-h-[560px]">
       {convite && <p className="text-[15px] text-apoio">Convite de {convite.escritorio}, {/^crc/i.test(convite.crc) ? convite.crc : `CRC ${convite.crc}`}</p>}
-      <h1 className="titulo-hero mt-4 max-w-[14ch]">Seu INSS pago a mais tem prazo para voltar.</h1>
-      <p className="mt-5 max-w-[44ch] text-lg leading-relaxed text-apoio">
+      <h1 className="font-titulo text-4xl font-normal leading-[1.08] tracking-tight text-grafite sm:text-5xl lg:text-6xl">Seu INSS pago a mais<br className="hidden sm:block" /> tem prazo para voltar.</h1>
+      <p className="max-w-[44ch] text-base font-light leading-relaxed text-apoio lg:text-lg">
         Quem trabalha em mais de uma empresa, cooperativa ou hospital costuma contribuir acima do teto. O excesso dos últimos 5 anos pode ser pedido de volta.
       </p>
-      <FotoEsmaecida src={FOTO_CLIENTE} />
-      <Regua className="-mt-10 lg:-mt-16 relative" compacta />
-      <NotaPrazo />
+    </BlocoEditorial>
+    <Regua className="mt-2" compacta />
+    <NotaPrazo />
     </>
   );
 
