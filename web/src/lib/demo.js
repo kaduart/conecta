@@ -9,7 +9,15 @@ const CONTADOR = { _id: 'demo', nome_escritorio: 'Escritório Demonstração', n
 export const CREDENCIAIS_DEMO = { email: 'demo@recupera.app', senha: 'demo-recupera-2026' };
 
 const espera = (ms = 350) => new Promise((r) => setTimeout(r, ms));
-const ler = () => { try { return JSON.parse(localStorage.getItem(CHAVE)) || { leads: [] }; } catch { return { leads: [] }; } };
+// Carteira fictícia para o painel não abrir vazio na demonstração.
+const dia = (n) => new Date(Date.now() - n * 86400000).toISOString();
+const EXEMPLOS = [
+  ['Marina Duarte', 'Médica', 'CONCLUIDO', 1.31, 0], ['Paulo Henrique Lima', 'Engenheiro', 'CONTRATO_ENVIADO', 1.08, 1],
+  ['Renata Ayres', 'Dentista', 'CONCLUIDO', 0.92, 2], ['Gustavo Pereira', 'Professor universitário', 'PROTOCOLADO', 0.74, 6],
+  ['Beatriz Nogueira', 'Advogada', 'DOCUMENTOS', 1, 0], ['Thiago Ramos', 'Anestesista', 'CONSENTIU', 1, 3],
+  ['Luciana Prado', 'Fisioterapeuta', 'CONCLUIDO', 0.66, 4],
+].map(([nome, profissao, status, fator, d], n) => ({ id: `ex${n}`, nome, profissao, whatsapp: '5561900000000', status, fator, solicitacoes: n === 2 ? [{ tipo: 'COPIA' }] : [], atualizadoEm: dia(d) }));
+const ler = () => { try { return JSON.parse(localStorage.getItem(CHAVE)) || { leads: [...EXEMPLOS] }; } catch { return { leads: [...EXEMPLOS] }; } };
 const gravar = (db) => { try { localStorage.setItem(CHAVE, JSON.stringify(db)); } catch { /* modo privado */ } };
 const erro = (codigo, msg) => Object.assign(new Error(msg), { codigo });
 const id = () => Math.random().toString(36).slice(2, 10);
@@ -92,7 +100,7 @@ export const demoApi = {
       return {
         id: l.id, nome: l.nome, profissao: l.profissao, whatsapp: l.whatsapp, status: l.status, atualizadoEm: l.atualizadoEm,
         recuperavelOnline: r?.recuperavelOnline ?? null, prejuizoPrescrito: r?.prejuizoPrescrito ?? null, confianca: r?.confianca ?? null,
-        diasParaPrescrever: r?.gatilhos?.diasParaPrescrever ?? null, prioridade: r ? alertaComercial(r).prioridade : null,
+        diasParaPrescrever: r?.gatilhos?.diasParaPrescrever ?? null, valorAVencer: r?.gatilhos?.valorAVencer ?? null, prioridade: r ? alertaComercial(r).prioridade : null,
         copiaPendente: (l.solicitacoes || []).length > 0,
       };
     }).sort((a, b) => (b.recuperavelOnline ?? -1) - (a.recuperavelOnline ?? -1));
