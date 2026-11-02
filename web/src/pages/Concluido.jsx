@@ -44,7 +44,7 @@ export default function Concluido() {
 
   return (
     <Tela lateral={editorial} rodape="Seus dados ficam criptografados e seguem a LGPD.">
-      <div className="cartao space-y-5 p-7 sm:p-10">
+      <div className="card-acao space-y-5 p-7 sm:p-10">
         <h2 className="font-titulo text-2xl font-medium">Próximo passo</h2>
         <p className="text-[16px] leading-relaxed">
           O relatório com os meses e valores já está com <strong>{s.escritorio}</strong>. O especialista vai falar com você pelo WhatsApp.

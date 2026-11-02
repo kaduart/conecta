@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
 import { ArrowRight } from 'lucide-react';
-import { Aviso, BlocoEditorial, Icone, Tela } from '../components/ui.jsx';
+import { Aviso, BlocoEditorial, Icone, SelosConfianca, Tela } from '../components/ui.jsx';
 import { FOTO_DOCUMENTOS } from '../lib/imagens.js';
 
 const BLOCOS = [
@@ -95,12 +95,13 @@ export default function Upload() {
 
   return (
     <Tela etapa="Etapa 2 de 3" lateral={editorial}>
-      <div className="space-y-4 rounded-xl border border-white/60 bg-white/40 p-6 shadow-[0_8px_32px_0_rgba(31,42,46,0.03)] backdrop-blur-xl sm:p-10">
+      <div className="card-acao space-y-4 p-6 sm:p-10">
         {BLOCOS.map((b) => <Bloco key={b.tipo} bloco={b} arquivos={arquivos[b.tipo]} onChange={(l) => definir(b.tipo, l)} />)}
         <div className="space-y-3 pt-4">
           <Aviso>{erro}</Aviso>
           <button className="btn-primario" disabled={!pronto || enviando} onClick={enviar}>{enviando ? 'Enviando com criptografia…' : 'Enviar para análise'}</button>
           {!pronto && <p className="text-center text-[14px] font-light text-apoio">Falta anexar o CNIS e os informes.</p>}
+          <SelosConfianca />
         </div>
       </div>
     </Tela>

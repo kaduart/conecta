@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, Clock, ShieldCheck, FileText, Check, Upload } from 'lucide-react';
+import { Eye, Clock, ShieldCheck, FileText, Check, Upload, Lock, KeyRound } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function Marca({ className = '' }) {
@@ -121,7 +121,7 @@ const MASCARA_FUNDO = {
  * Bloco editorial da esquerda: o texto flutua (z-10) e a foto fica de fundo, absoluta,
  * fundida ao off-white por máscara. `rodape` fica embaixo, por cima da foto.
  */
-export function BlocoEditorial({ foto, children, rodape, className = 'min-h-[480px] sm:min-h-[540px] lg:min-h-[660px]' }) {
+export function BlocoEditorial({ foto, children, rodape, className = 'min-h-[480px] sm:min-h-[540px] lg:min-h-[660px]', fotoClassName = 'h-[62%] lg:h-[58%]', fotoPos = 'top' }) {
   const [ok, setOk] = useState(true);
   return (
     <div className={`relative isolate flex flex-col justify-between ${className}`}>
@@ -129,10 +129,38 @@ export function BlocoEditorial({ foto, children, rodape, className = 'min-h-[480
       <div className="relative z-10 max-w-xl space-y-6">{children}</div>
       {rodape && <div className="relative z-10 mt-10">{rodape}</div>}
       {foto && ok && (
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[62%] opacity-85 lg:h-[58%]">
-          <img src={foto} alt="" onError={() => setOk(false)} decoding="async" className="h-full w-full object-cover object-top" style={MASCARA_FUNDO} />
+        <div aria-hidden className={`pointer-events-none absolute inset-x-0 bottom-0 -z-10 opacity-85 ${fotoClassName}`}>
+          <img src={foto} alt="" onError={() => setOk(false)} decoding="async" className="h-full w-full object-cover" style={{ ...MASCARA_FUNDO, objectPosition: fotoPos }} />
         </div>
       )}
     </div>
+  );
+}
+
+/** Três garantias que o cliente quer ler antes de clicar. Fica logo abaixo do botão principal. */
+export function SelosConfianca() {
+  const itens = [[Lock, 'Criptografado'], [ShieldCheck, 'LGPD'], [KeyRound, 'Sem senha do gov.br']];
+  return (
+    <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[13px] text-apoio">
+      {itens.map(([I, t]) => (
+        <li key={t} className="inline-flex items-center gap-1.5"><I className="h-3.5 w-3.5 text-esmeralda-texto" strokeWidth={1.5} />{t}</li>
+      ))}
+    </ul>
+  );
+}
+
+/** Os três passos do fluxo, com o atual em destaque. */
+export function Passos({ atual = 1 }) {
+  const passos = ['Seus dados', '3 PDFs', 'Resultado'];
+  return (
+    <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
+      {passos.map((p, i) => (
+        <li key={p} className="inline-flex items-center gap-2">
+          <span className={`grid h-5 w-5 place-items-center rounded-full text-[11px] font-semibold tabular-nums ${i + 1 === atual ? 'bg-grafite text-white' : i + 1 < atual ? 'bg-esmeralda text-esmeralda-tinta' : 'bg-grafite/[0.07] text-apoio'}`}>{i + 1}</span>
+          <span className={i + 1 === atual ? 'font-medium text-grafite' : 'text-apoio'}>{p}</span>
+          {i < passos.length - 1 && <span aria-hidden className="h-px w-4 bg-grafite/15" />}
+        </li>
+      ))}
+    </ol>
   );
 }

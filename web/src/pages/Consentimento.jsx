@@ -43,7 +43,7 @@ export default function Consentimento() {
 
   return (
     <Tela etapa="Etapa 1 de 3" lateral={editorial}>
-      <div className="cartao space-y-6 p-7 sm:p-10">
+      <div className="card-acao space-y-6 p-7 sm:p-10">
         <label className="flex cursor-pointer items-start gap-3">
           <input type="checkbox" className="mt-0.5 h-6 w-6 shrink-0 rounded-sm accent-esmeralda" checked={aceito} onChange={(e) => setAceito(e.target.checked)} />
           <span className="text-[16px] leading-snug">Li e autorizo o uso dos meus documentos para a análise tributária.</span>
