@@ -1,0 +1,39 @@
+# Blueprint do Render: cria a API (com o worker embutido) e o Redis das filas.
+# No Render: New > Blueprint > escolher kaduart/conecta. Ele só pergunta o MONGO_URL.
+services:
+  - type: web
+    name: recupera-api
+    runtime: node
+    plan: free
+    region: virginia
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true            # publica sozinho a cada merge na main
+    branch: main
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: MONGO_URL          # único valor que você preenche
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ENC_KEY            # 256 bits em base64 (AES-256-GCM)
+        generateValue: true
+      - key: WEB_ORIGIN
+        value: https://recupera-taupe.vercel.app
+      - key: WORKER_EMBUTIDO
+        value: "1"
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: recupera-redis
+          property: connectionString
+
+  - type: keyvalue
+    name: recupera-redis
+    plan: free
+    region: virginia
+    maxmemoryPolicy: noeviction  # BullMQ exige: não pode descartar jobs
+    ipAllowList: []              # só acessível pela rede interna do Render

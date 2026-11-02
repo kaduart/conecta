@@ -26,6 +26,7 @@ const MENSAGENS = {
   VALIDACAO: 'Confira os campos destacados.',
   CREDENCIAIS_INVALIDAS: 'E-mail ou chave incorretos.',
   TOKEN_INVALIDO: 'Sua sessão expirou. Entre de novo.',
+  PRIMEIRO_ACESSO_ENCERRADO: 'O primeiro acesso já foi feito. Entre com e-mail e senha.',
 };
 
 async function req(caminho, { metodo = 'GET', corpo, form, auth } = {}) {
@@ -56,6 +57,8 @@ const apiReal = {
   pedirCopia: (id) => req(`/leads/${id}/copia-relatorio`, { metodo: 'POST', auth: 'lead' }),
 
   login: (corpo) => req('/contador/login', { metodo: 'POST', corpo }),
+  primeiroAcessoDisponivel: () => req('/contador/primeiro-acesso'),
+  primeiroAcesso: (corpo) => req('/contador/primeiro-acesso', { metodo: 'POST', corpo }),
   analises: () => req('/contador/analises', { auth: 'contador' }),
   analise: (id) => req(`/contador/analises/${id}`, { auth: 'contador' }),
   contrato: (id) => req(`/contador/analises/${id}/contrato`, { auth: 'contador' }),

@@ -68,5 +68,10 @@ Webhook opcional ao CRM do escritório: evento `auditoria.concluida`, header `X-
 3. Pronto: no primeiro deploy, o projeto `recupera` é criado sozinho na Vercel.
 4. Opcional, depois que a API estiver no ar: crie a variable `VITE_API_URL` com a URL da API.
 
-### API e worker
-A Vercel publica só o front. A API Express e o worker BullMQ precisam de processo contínuo, Mongo e Redis, então vão para Render ou Railway (com Mongo Atlas e Upstash Redis).
+### API e worker (Render)
+O `render.yaml` cria tudo pelo Blueprint: a API (com o worker embutido, `WORKER_EMBUTIDO=1`) e o Redis das filas.
+1. Render > New > Blueprint > repositório `kaduart/conecta`.
+2. Ele só pede o `MONGO_URL` (cluster `conecta-prod` no Atlas, banco `recupera`). `JWT_SECRET` e `ENC_KEY` são gerados sozinhos.
+3. Depois do primeiro deploy, abra `/painel/login` e use "Primeiro acesso" para criar o escritório. Essa tela só funciona enquanto o banco não tem nenhum contador.
+
+Plano grátis: a API dorme depois de ~15 min sem uso (a primeira chamada demora ~1 min) e o disco é efêmero, o que é ok para PDFs que são processados na hora.
