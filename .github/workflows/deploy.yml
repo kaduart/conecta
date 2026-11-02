@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm, cache-dependency-path: server/package-lock.json }
+        with: { node-version: 22, cache: npm, cache-dependency-path: server/package-lock.json }
       - run: npm ci
       - run: npm test
 
@@ -30,8 +30,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - run: npm i -g vercel@39
+        with: { node-version: 22 }
+      - run: npm i -g vercel@latest  # a API da Vercel exige CLI recente (>= 47.2.2)
       - name: Vincular (cria o projeto na 1ª vez)
         run: vercel link --yes --project recupera --token=${{ secrets.VERCEL_TOKEN }}
       - name: Publicar em produção
