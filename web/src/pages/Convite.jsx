@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
 import { Aviso, Carregando, Tela } from '../components/ui.jsx';
+import Regua from '../components/Regua.jsx';
+import { proximaPrescricao } from '../lib/prazo.js';
 
 const PROFISSOES = ['Médico(a)', 'Professor(a) universitário(a)', 'Profissional de TI', 'Engenheiro(a)', 'Diretor(a)', 'Outra'];
 
@@ -40,16 +42,26 @@ export default function Convite() {
 
   if (!convite && !erro) return <Tela><Carregando /></Tela>;
 
-  return (
-    <Tela rodape="Cerca de 5 minutos · Conforme a LGPD · Não pedimos senha gov.br">
-      {convite && <p className="text-sm font-light text-apoio">{convite.escritorio} · {convite.crc}</p>}
-      <h1 className="titulo mt-3">Seu patrimônio tem prazo de validade legal.</h1>
-      <p className="apoio mt-4 text-[17px] leading-relaxed">
-        Quem atua em mais de uma empresa, cooperativa ou hospital pode ter INSS a restituir acima do teto.
+  const editorial = (
+    <>
+      {convite && <p className="text-[15px] text-apoio">Convite de {convite.escritorio}, {/^crc/i.test(convite.crc) ? convite.crc : `CRC ${convite.crc}`}</p>}
+      <h1 className="titulo-hero mt-4 max-w-[14ch]">Seu INSS pago a mais tem prazo para voltar.</h1>
+      <p className="mt-5 max-w-[44ch] text-lg leading-relaxed text-apoio">
+        Quem trabalha em mais de uma empresa, cooperativa ou hospital costuma contribuir acima do teto. O excesso dos últimos 5 anos pode ser pedido de volta.
       </p>
+      <Regua className="mt-10 lg:mt-14" compacta />
+      <NotaPrazo />
+    </>
+  );
 
+  return (
+    <Tela lateral={editorial} rodape="Leva cerca de 5 minutos. Não pedimos sua senha do gov.br.">
       {convite && (
-        <form onSubmit={enviar} className="vidro mt-8 space-y-5 p-5 sm:p-6" noValidate>
+        <form onSubmit={enviar} className="cartao space-y-6 p-7 sm:p-10" noValidate>
+          <div>
+            <h2 className="font-titulo text-2xl font-medium">Começar a análise</h2>
+            <p className="mt-1 text-[15px] text-apoio">Seu contador recebe o resultado.</p>
+          </div>
           <div>
             <label className="rotulo" htmlFor="nome">Nome</label>
             <input id="nome" className="campo" autoComplete="name" placeholder="Como você se chama" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
@@ -69,14 +81,20 @@ export default function Convite() {
             <input id="wa" className="campo" inputMode="tel" autoComplete="tel-national" placeholder="(61) 99999-0000" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: mascara(e.target.value) })} />
           </div>
           <Aviso>{erro}</Aviso>
-          <button className="btn-primario" disabled={!valido || enviando}>{enviando ? 'Enviando…' : 'Iniciar diagnóstico previdenciário'}</button>
+          <button className="btn-primario" disabled={!valido || enviando}>{enviando ? 'Enviando…' : 'Começar a análise'}</button>
         </form>
       )}
-      {!convite && <div className="mt-8"><Aviso>{erro}</Aviso></div>}
-
-      <p className="mt-6 rounded-card bg-ambar-fundo/40 px-4 py-3 text-sm text-ambar-escuro">
-        A restituição alcança só os últimos 5 anos. As competências mais antigas saem do prazo a cada mês.
-      </p>
+      {!convite && <Aviso>{erro}</Aviso>}
     </Tela>
+  );
+}
+
+// Nota de rodapé: calculada pela data de hoje, nunca fixa no texto.
+function NotaPrazo() {
+  const p = proximaPrescricao();
+  return (
+    <p className="mt-4 max-w-[52ch] text-[14px] font-light leading-relaxed text-apoio">
+      Cada traço da régua é um mês que ainda pode voltar. As contribuições de <span className="font-normal text-amber-800">{p.competencia}</span> saem do prazo em {p.vence}.
+    </p>
   );
 }

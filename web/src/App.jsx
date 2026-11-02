@@ -17,6 +17,7 @@ export default function App() {
     <>
       <div className="malha" aria-hidden />
       {DEMO && <FaixaDemo />}
+      <div className={DEMO ? 'pb-20 sm:pb-12' : ''}>
       <Routes>
         {/* Fluxo do cliente: link do contador /c/:slug */}
         <Route path="/c/:slug" element={<Convite />} />
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="/painel/:id" element={<Detalhe />} />
         <Route path="*" element={<Navigate to="/painel" replace />} />
       </Routes>
+      </div>
     </>
   );
 }

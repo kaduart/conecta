@@ -88,6 +88,7 @@ contador.get('/analises', wrap(async (req, res) => {
       confianca: r ? (r.resumo_financeiro.grau_confianca === 'ALTO' ? 'COMPROVADO' : 'ESTIMADO') : null,
       grauConfianca: r?.resumo_financeiro.grau_confianca ?? null,
       diasParaPrescrever: g?.dias_para_prescrever ?? null,
+      valorAVencer: g?.valor_a_vencer ?? null,
       prioridade: r ? alertaComercial({ gatilhos: { diasParaPrescrever: g.dias_para_prescrever }, alertas: [] }).prioridade : null,
       copiaPendente: (l.solicitacoes_titular || []).some((s) => s.tipo === 'COPIA' && !s.atendida_em),
     };
