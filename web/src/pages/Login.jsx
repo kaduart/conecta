@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { api, sessaoContador, DEMO } from '../lib/api.js';
 import { CREDENCIAIS_DEMO } from '../lib/demo.js';
 import { Aviso, Tela } from '../components/ui.jsx';
@@ -9,6 +9,8 @@ export default function Login() {
   const [form, setForm] = useState(DEMO ? CREDENCIAIS_DEMO : { email: '', senha: '' });
   const [erro, setErro] = useState('');
   const [enviando, setEnviando] = useState(false);
+  const [primeiro, setPrimeiro] = useState(false);
+  useEffect(() => { api.primeiroAcessoDisponivel().then((r) => setPrimeiro(r.disponivel)).catch(() => {}); }, []);
 
   async function entrar(e) {
     e.preventDefault(); setEnviando(true); setErro('');
@@ -25,6 +27,7 @@ export default function Login() {
         <Aviso>{erro}</Aviso>
         <button className="btn-primario" disabled={enviando}>{enviando ? 'Entrando…' : 'Entrar'}</button>
       </form>
+      {primeiro && <p className="mt-6 text-center text-sm"><Link className="link" to="/painel/primeiro-acesso">Primeiro acesso: cadastrar o escritório</Link></p>}
     </Tela>
   );
 }

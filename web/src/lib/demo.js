@@ -82,6 +82,8 @@ export const demoApi = {
     if (email.toLowerCase() !== CREDENCIAIS_DEMO.email || senha !== CREDENCIAIS_DEMO.senha) throw erro('CREDENCIAIS_INVALIDAS', 'E-mail ou chave incorretos.');
     return { token: 'demo', escritorio: CONTADOR.nome_escritorio, slugLink: CONTADOR.slug_link };
   },
+  async primeiroAcessoDisponivel() { return { disponivel: false }; },
+  async primeiroAcesso() { throw erro('PRIMEIRO_ACESSO_ENCERRADO', 'Indisponível no modo demonstração.'); },
   async analises() {
     await espera();
     const itens = ler().leads.map((l) => {

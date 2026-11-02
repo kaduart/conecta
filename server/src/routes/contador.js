@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { Contador, Lead, RelatorioAuditoria } from '../models/index.js';
 import { config } from '../config.js';
-import { conferirSenha } from '../services/senha.js';
+import { conferirSenha, hashSenha } from '../services/senha.js';
 import { gerarContrato } from '../services/contrato.js';
 import { perdcompCsv } from '../services/perdcomp.js';
 import { roteiroCliente, alertaComercial } from '../services/notificacao.js';
@@ -22,6 +22,28 @@ contador.post('/login', wrap(async (req, res) => {
   const c = await Contador.findOne({ email: body.email.toLowerCase(), status: 'ATIVO' }).select('+password_hash');
   if (!c || !(await conferirSenha(senha, c.password_hash))) throw new HttpError(401, 'CREDENCIAIS_INVALIDAS');
   res.json({ token: assinarToken(c), escritorio: c.nome_escritorio, slugLink: c.slug_link });
+}));
+
+// Primeiro acesso: cria o PRIMEIRO contador pela tela, sem script nem variável.
+// Só funciona enquanto o banco não tem nenhum contador; depois disso responde 403.
+contador.get('/primeiro-acesso', wrap(async (_req, res) => {
+  res.json({ disponivel: (await Contador.estimatedDocumentCount()) === 0 });
+}));
+
+contador.post('/primeiro-acesso', wrap(async (req, res) => {
+  const b = z.object({
+    nome_escritorio: z.string().min(2).max(120),
+    nome_responsavel: z.string().min(2).max(120),
+    crc: z.string().min(4).max(40),
+    email: z.string().email(),
+    whatsapp: z.string().transform((s) => s.replace(/\D/g, '')).transform((s) => (s.startsWith('55') ? s : `55${s}`)).refine((s) => /^55\d{10,11}$/.test(s), 'WhatsApp inválido'),
+    slug_link: z.string().toLowerCase().regex(/^[a-z0-9-]{3,40}$/),
+    senha: z.string().min(10).max(200),
+  }).parse(req.body);
+  if ((await Contador.countDocuments()) > 0) throw new HttpError(403, 'PRIMEIRO_ACESSO_ENCERRADO');
+  const { senha, ...dados } = b;
+  const c = await Contador.create({ ...dados, password_hash: await hashSenha(senha) });
+  res.status(201).json({ token: assinarToken(c), escritorio: c.nome_escritorio, slugLink: c.slug_link });
 }));
 
 contador.use(exigirContador);

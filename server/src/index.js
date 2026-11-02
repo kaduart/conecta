@@ -28,4 +28,9 @@ app.use((err, req, res, _next) => {
 });
 
 await conectar();
+// No plano grátis do Render a API e o worker rodam no mesmo processo.
+if (process.env.WORKER_EMBUTIDO === '1') {
+  const { iniciarWorkers } = await import('./queues/workers.js');
+  await iniciarWorkers();
+}
 app.listen(config.port, () => log.info({ port: config.port }, 'API RECUPERA no ar'));

@@ -5,6 +5,7 @@ import Upload from './pages/Upload.jsx';
 import Processando from './pages/Processando.jsx';
 import Concluido from './pages/Concluido.jsx';
 import Login from './pages/Login.jsx';
+import PrimeiroAcesso from './pages/PrimeiroAcesso.jsx';
 import Painel from './pages/Painel.jsx';
 import Detalhe from './pages/Detalhe.jsx';
 import { DEMO } from './lib/api.js';
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/c/:slug/concluido" element={<Concluido />} />
         {/* Painel do contador */}
         <Route path="/painel/login" element={<Login />} />
+        <Route path="/painel/primeiro-acesso" element={<PrimeiroAcesso />} />
         <Route path="/painel" element={<Painel />} />
         <Route path="/painel/:id" element={<Detalhe />} />
         <Route path="*" element={<Navigate to="/painel" replace />} />

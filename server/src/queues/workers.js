@@ -121,8 +121,8 @@ export async function limparVencidos() {
 const opcoes = { connection, concurrency: 4 };
 const handlers = { 'processar-auditoria': processarLead, 'notificar-contador': notificarContador, 'limpeza-lgpd': limparVencidos };
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  await conectar();
+/** Sobe os workers. Usado pelo `npm run worker` ou dentro da API (WORKER_EMBUTIDO=1). */
+export async function iniciarWorkers() {
   await agendarLimpeza();
   for (const [fila, fn] of Object.entries(handlers)) {
     const w = new Worker(fila, (job) => fn(job.data), opcoes);
@@ -130,4 +130,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     w.on('completed', (job) => log.info({ fila, jobId: job.id }, 'job ok'));
   }
   log.info('workers no ar');
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  await conectar();
+  await iniciarWorkers();
 }
