@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
-import { Aviso, Carregando, Foto, Tela } from '../components/ui.jsx';
+import { Aviso, Carregando, Tela } from '../components/ui.jsx';
 import { FOTO_CLIENTE } from '../lib/imagens.js';
 import Regua from '../components/Regua.jsx';
 import { proximaPrescricao } from '../lib/prazo.js';
@@ -45,22 +45,21 @@ export default function Convite() {
 
   const editorial = (
     <>
-      <Foto src={FOTO_CLIENTE} className="mb-8 aspect-[4/3] lg:hidden" />
       {convite && <p className="text-[15px] text-apoio">Convite de {convite.escritorio}, {/^crc/i.test(convite.crc) ? convite.crc : `CRC ${convite.crc}`}</p>}
       <h1 className="titulo-hero mt-4 max-w-[14ch]">Seu INSS pago a mais tem prazo para voltar.</h1>
       <p className="mt-5 max-w-[44ch] text-lg leading-relaxed text-apoio">
         Quem trabalha em mais de uma empresa, cooperativa ou hospital costuma contribuir acima do teto. O excesso dos últimos 5 anos pode ser pedido de volta.
       </p>
-      <Regua className="mt-10 lg:mt-14" compacta />
+      <FotoEsmaecida src={FOTO_CLIENTE} />
+      <Regua className="-mt-10 lg:-mt-16 relative" compacta />
       <NotaPrazo />
     </>
   );
 
   return (
     <Tela lateral={editorial} rodape="Leva cerca de 5 minutos. Não pedimos sua senha do gov.br.">
-      <Foto src={FOTO_CLIENTE} className="hidden aspect-[4/5] lg:block" />
       {convite && (
-        <form onSubmit={enviar} className="cartao relative space-y-6 p-7 sm:p-10 lg:-mt-56 lg:mx-5" noValidate>
+        <form onSubmit={enviar} className="cartao space-y-6 p-7 sm:p-10" noValidate>
           <div>
             <h2 className="font-titulo text-2xl font-medium">Começar a análise</h2>
             <p className="mt-1 text-[15px] text-apoio">Seu contador recebe o resultado.</p>
@@ -99,5 +98,18 @@ function NotaPrazo() {
     <p className="mt-4 max-w-[52ch] text-[14px] font-light leading-relaxed text-apoio">
       Cada traço da régua é um mês que ainda pode voltar. As contribuições de <span className="font-normal text-amber-800">{p.competencia}</span> saem do prazo em {p.vence}.
     </p>
+  );
+}
+
+// Foto que se dissolve no fundo: opacidade baixa e máscara nas bordas, sem moldura.
+function FotoEsmaecida({ src }) {
+  const [ok, setOk] = useState(true);
+  if (!ok) return null;
+  return (
+    <div aria-hidden className="pointer-events-none relative mt-8 h-56 overflow-hidden sm:h-72 lg:mt-10 lg:h-80">
+      <img src={src} alt="" onError={() => setOk(false)} decoding="async"
+        className="h-full w-full object-cover object-[center_30%] opacity-60 saturate-[.85]"
+        style={{ maskImage: 'radial-gradient(ellipse 75% 70% at 45% 45%, #000 35%, transparent 78%)', WebkitMaskImage: 'radial-gradient(ellipse 75% 70% at 45% 45%, #000 35%, transparent 78%)' }} />
+    </div>
   );
 }
