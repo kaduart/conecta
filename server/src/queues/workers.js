@@ -91,7 +91,7 @@ export async function notificarContador({ relatorioId }) {
     Contador.findById(doc.contador_id).select('+whatsapp_provider.token_cifrado +webhook.segredo_cifrado'),
   ]);
   const relatorio = relatorioParaApi(doc.toObject());
-  const painelUrl = `${config.webOrigin}/painel/${lead._id}`;
+  const painelUrl = `${config.webOrigin[0]}/painel/${lead._id}`;
   const args = { lead, relatorio, contador, painelUrl };
 
   await enviarWebhook(contador, payloadWebhook(args));

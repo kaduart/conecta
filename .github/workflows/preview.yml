@@ -1,0 +1,28 @@
+# PR para a main -> publica uma prévia na Vercel em modo demonstração (dados fictícios, sem tocar na API).
+# O link sai no resumo da execução (aba Actions) para validar as telas antes do merge.
+name: Prévia Vercel
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: previa-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  previa:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: web } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm i -g vercel@latest
+      - run: vercel link --yes --project recupera --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Publicar prévia (modo demonstração)
+        run: |
+          url=$(vercel deploy --yes --build-env VITE_DEMO=1 --token=${{ secrets.VERCEL_TOKEN }})
+          echo "PREVIA_URL=$url"
+          echo "### Prévia: $url" >> "$GITHUB_STEP_SUMMARY"

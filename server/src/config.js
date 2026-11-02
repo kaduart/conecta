@@ -21,7 +21,8 @@ export const config = {
     accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
     secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
   },
-  webOrigin: process.env.WEB_ORIGIN || 'http://localhost:5173',
+  // Uma ou mais origens do front, separadas por vírgula. A primeira é a principal (usada nos links enviados).
+  webOrigin: (process.env.WEB_ORIGIN || 'http://localhost:5173').split(',').map((s) => s.trim()).filter(Boolean),
   termoVersao: process.env.TERMO_VERSAO || '2026-11',
   retencaoDias: Number(process.env.RETENCAO_DIAS || 30),
   evolutionUrl: process.env.EVOLUTION_URL,  // ex.: https://evolution.seudominio.com
