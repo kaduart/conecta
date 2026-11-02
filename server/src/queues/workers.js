@@ -5,37 +5,44 @@ import { conectar } from '../db.js';
 import { config } from '../config.js';
 import { log } from '../logger.js';
 import { connection, enfileirarNotificacao, agendarLimpeza } from './index.js';
-import { Contador, Lead, Relatorio } from '../models/index.js';
+import { Contador, Lead, RelatorioAuditoria } from '../models/index.js';
 import { ler, apagar } from '../services/storage.js';
 import { textoDoPdf, parseCnis, parseInforme, normalizar } from '../parsers/index.js';
 import { auditar } from '../engine/teto.js';
+import { paraRelatorio, relatorioParaApi } from '../engine/mapear.js';
+import { avaliarExtracao } from '../parsers/validador.js';
 import { mensagemContador, payloadWebhook } from '../services/notificacao.js';
 import { enviarTexto } from '../services/whatsapp.js';
 import { enviarWebhook } from '../services/webhook.js';
 
 export async function processarLead({ leadId, idempotencyKey }) {
-  // Idempotência: relatório já gerado com a mesma chave? Só garante a notificação.
-  const existente = await Relatorio.findOne({ idempotencyKey });
-  if (existente) {
-    await Lead.updateOne({ _id: leadId }, { status: 'CONCLUIDO', relatorioId: existente._id });
-    if (!existente.notificadoEm) await enfileirarNotificacao(existente._id);
-    return { relatorioId: existente._id, reaproveitado: true };
-  }
-
   const lead = await Lead.findById(leadId);
   if (!lead) throw new Error(`lead ${leadId} não existe`);
+
+  // Idempotência: relatório com a mesma chave já existe? Só garante status e notificação.
+  const existente = await RelatorioAuditoria.findOne({ lead_id: lead._id, idempotency_key: idempotencyKey });
+  if (existente) {
+    if (!['CONTRATO_ENVIADO', 'PROTOCOLADO'].includes(lead.status_jornada)) {
+      lead.status_jornada = existente.resumo_financeiro.grau_confianca === 'BAIXO' ? 'REVISAO_MANUAL' : 'PROCESSADO';
+    }
+    lead.relatorio_id = existente._id;
+    await lead.save();
+    if (!existente.notificado_em) await enfileirarNotificacao(existente._id);
+    return { relatorioId: existente._id, reaproveitado: true };
+  }
 
   let vinculos = [];
   const informes = [];
   for (const doc of lead.documentos) {
+    if (doc.apagado_em) continue;
     try {
       if (doc.status !== 'EXTRAIDO') {
-        const texto = await textoDoPdf(await ler(doc.storageKey));
+        const texto = await textoDoPdf(await ler(doc.s3_key));
         doc.extraido = doc.tipo === 'CNIS' ? { vinculos: parseCnis(texto) } : parseInforme(texto);
         doc.status = 'EXTRAIDO';
       }
       if (doc.tipo === 'CNIS') vinculos = vinculos.concat(doc.extraido.vinculos || []);
-      else if (doc.extraido?.inssAnual != null) informes.push(doc.extraido);
+      else if (doc.tipo === 'INFORME') informes.push(doc.extraido);
     } catch (e) {
       doc.status = 'ERRO';
       doc.erro = e.message.slice(0, 200);
@@ -44,62 +51,67 @@ export async function processarLead({ leadId, idempotencyKey }) {
   }
   lead.markModified('documentos');
 
+  // Score de confiança da leitura. Sem vínculo nenhum não há o que calcular.
+  const extracao = avaliarExtracao({ vinculos, informes });
   if (!vinculos.length) {
-    lead.status = 'ERRO';
+    lead.status_jornada = 'REVISAO_MANUAL';
     await lead.save();
-    log.warn({ leadId }, 'CNIS sem vínculos legíveis: revisão manual');
+    log.warn({ leadId, motivos: extracao.motivos }, 'CNIS ilegível: revisão manual');
     return { erro: 'CNIS_ILEGIVEL' }; // não lança: repetir não resolve PDF ilegível
   }
 
-  const resultado = auditar(normalizar(vinculos, informes), { dataBase: config.dataBase || undefined });
+  const contador = await Contador.findById(lead.contador_id);
+  const resultado = auditar(normalizar(vinculos, informes.filter((i) => i.inssAnual != null)), { dataBase: config.dataBase || undefined });
+  const dados = paraRelatorio(resultado, { extracao, honorariosPercentual: contador?.honorarios_percentual });
 
-  const rel = await Relatorio.findOneAndUpdate(
-    { idempotencyKey },
+  // Um relatório por lead: reprocessar com documentos novos substitui o anterior.
+  const rel = await RelatorioAuditoria.findOneAndUpdate(
+    { lead_id: lead._id },
     {
-      $setOnInsert: {
-        leadId: lead._id, contadorId: lead.contadorId, idempotencyKey,
-        versaoMotor: resultado.versaoMotor, dataBase: resultado.dataBase,
-        recuperavelOnline: resultado.recuperavel_online, prejuizoPrescrito: resultado.prejuizo_prescrito,
-        confianca: resultado.confianca, consolidadoAnual: resultado.consolidadoAnual, meses: resultado.meses,
-        gatilhos: resultado.gatilhos, alertas: resultado.alertas,
+      $set: {
+        ...dados, contador_id: lead.contador_id, idempotency_key: idempotencyKey, notificado_em: null,
+        arquivos_origem: lead.documentos.map((d) => ({ nome_arquivo: d.nome_arquivo, s3_key: d.s3_key, sha256_hash: d.sha256_hash })),
       },
     },
-    { upsert: true, new: true },
+    { upsert: true, new: true, runValidators: true },
   );
-  lead.relatorioId = rel._id;
-  lead.status = 'CONCLUIDO';
+  lead.relatorio_id = rel._id;
+  lead.status_jornada = extracao.revisaoManual ? 'REVISAO_MANUAL' : 'PROCESSADO';
   await lead.save();
   await enfileirarNotificacao(rel._id);
-  log.info({ leadId, relatorioId: rel._id, recuperavel: rel.recuperavelOnline }, 'auditoria concluída');
+  log.info({ leadId, relatorioId: rel._id, recuperavel: rel.resumo_financeiro.total_recuperavel, score: extracao.score }, 'auditoria concluída');
   return { relatorioId: rel._id };
 }
 
 export async function notificarContador({ relatorioId }) {
-  const rel = await Relatorio.findById(relatorioId);
-  if (!rel || rel.notificadoEm) return { pulado: true };
-  const [lead, contador] = await Promise.all([Lead.findById(rel.leadId), Contador.findById(rel.contadorId)]);
+  const doc = await RelatorioAuditoria.findById(relatorioId);
+  if (!doc || doc.notificado_em) return { pulado: true };
+  const [lead, contador] = await Promise.all([
+    Lead.findById(doc.lead_id),
+    Contador.findById(doc.contador_id).select('+whatsapp_provider.token_cifrado +webhook.segredo_cifrado'),
+  ]);
+  const relatorio = relatorioParaApi(doc.toObject());
   const painelUrl = `${config.webOrigin}/painel/${lead._id}`;
-  const args = { lead, relatorio: rel, contador, painelUrl };
+  const args = { lead, relatorio, contador, painelUrl };
 
   await enviarWebhook(contador, payloadWebhook(args));
   const { texto } = mensagemContador(args);
-  await enviarTexto(contador.whatsappProvider, contador.whatsapp, texto);
+  await enviarTexto(contador.whatsapp_provider, contador.whatsapp, texto);
 
   // Marca só depois de enviar; o update condicional evita envio duplo em corrida.
-  await Relatorio.updateOne({ _id: rel._id, notificadoEm: null }, { notificadoEm: new Date() });
+  await RelatorioAuditoria.updateOne({ _id: doc._id, notificado_em: null }, { notificado_em: new Date() });
   return { ok: true };
 }
 
+/** Apaga os PDFs vencidos do storage e mantém só os metadados (LGPD). */
 export async function limparVencidos() {
   const agora = new Date();
-  const leads = await Lead.find({ 'documentos.apagarEm': { $lte: agora } });
+  const leads = await Lead.find({ documentos: { $elemMatch: { apagar_em: { $lte: agora }, apagado_em: null } } });
   let apagados = 0;
   for (const lead of leads) {
-    const manter = [];
     for (const d of lead.documentos) {
-      if (d.apagarEm <= agora) { await apagar(d.storageKey); apagados += 1; } else manter.push(d);
+      if (d.apagar_em <= agora && !d.apagado_em) { await apagar(d.s3_key); d.apagado_em = agora; d.extraido = undefined; apagados += 1; }
     }
-    lead.documentos = manter;
     await lead.save();
   }
   log.info({ apagados }, 'limpeza LGPD');

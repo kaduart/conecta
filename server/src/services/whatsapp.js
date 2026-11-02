@@ -22,9 +22,9 @@ async function post(url, headers, body) {
   return res.json().catch(() => ({}));
 }
 
-/** @param {{tipo:'evolution'|'zapi'|'nenhum', instancia?:string, tokenEnc?:string}} provider */
+/** @param {{tipo:'evolution'|'zapi'|'nenhum', instancia?:string, token_cifrado?:string}} provider */
 export async function enviarTexto(provider, numero, texto) {
-  const token = provider?.tokenEnc ? decrypt(provider.tokenEnc) : null;
+  const token = provider?.token_cifrado ? decrypt(provider.token_cifrado) : null;
   const numeroLimpo = soDigitos(numero);
 
   if (provider?.tipo === 'evolution') {

@@ -6,7 +6,7 @@ import { Aviso, Tela } from '../components/ui.jsx';
 
 export default function Login() {
   const nav = useNavigate();
-  const [form, setForm] = useState(DEMO ? CREDENCIAIS_DEMO : { email: '', apiKey: '' });
+  const [form, setForm] = useState(DEMO ? CREDENCIAIS_DEMO : { email: '', senha: '' });
   const [erro, setErro] = useState('');
   const [enviando, setEnviando] = useState(false);
 
@@ -21,7 +21,7 @@ export default function Login() {
       <p className="apoio mt-3">Acesse as auditorias dos seus clientes.</p>
       <form onSubmit={entrar} className="vidro mt-8 space-y-5 p-5">
         <div><label className="rotulo" htmlFor="em">E-mail</label><input id="em" type="email" autoComplete="username" className="campo" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
-        <div><label className="rotulo" htmlFor="k">Chave de acesso</label><input id="k" type="password" autoComplete="current-password" className="campo" value={form.apiKey} onChange={(e) => setForm({ ...form, apiKey: e.target.value })} /></div>
+        <div><label className="rotulo" htmlFor="k">Senha</label><input id="k" type="password" autoComplete="current-password" className="campo" value={form.senha} onChange={(e) => setForm({ ...form, senha: e.target.value })} /></div>
         <Aviso>{erro}</Aviso>
         <button className="btn-primario" disabled={enviando}>{enviando ? 'Entrando…' : 'Entrar'}</button>
       </form>

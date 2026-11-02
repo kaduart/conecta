@@ -20,10 +20,10 @@ function get(obj, chave) {
 }
 
 export function dadosContrato({ lead, contador, relatorio, cidade = '________', retencaoDias = 30, mostrarCpfCompleto = false }) {
-  const percentual = Math.min(Math.round(contador.honorariosPercentual ?? TETO_HONORARIOS), TETO_HONORARIOS);
+  const percentual = Math.min(Math.round(contador.honorarios_percentual ?? TETO_HONORARIOS), TETO_HONORARIOS);
   const validos = (relatorio.meses || []).filter((m) => !m.prescrito && m.excesso > 0).map((m) => m.competencia);
   const fmt = (c) => (c ? `${c.slice(5)}/${c.slice(0, 4)}` : '');
-  const cpf = lead.cpfEnc ? decrypt(lead.cpfEnc) : null;
+  const cpf = lead.cpf_cifrado ? decrypt(lead.cpf_cifrado) : null;
   const agora = new Date();
   return {
     geradoEm: dataHora(agora),
@@ -32,9 +32,9 @@ export function dadosContrato({ lead, contador, relatorio, cidade = '________', 
     dataExtenso: agora.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/Sao_Paulo' }),
     cliente: { nome: lead.nome, profissao: lead.profissao, whatsapp: lead.whatsapp, cpf: mostrarCpfCompleto ? cpf || '____' : mascararCpf(cpf) },
     contador: {
-      escritorio: contador.escritorio,
+      escritorio: contador.nome_escritorio,
       cnpjTexto: contador.cnpj ? `, CNPJ ${contador.cnpj}` : '',
-      responsavel: contador.responsavel,
+      responsavel: contador.nome_responsavel,
       crc: contador.crc,
       email: contador.email,
     },
@@ -50,9 +50,9 @@ export function dadosContrato({ lead, contador, relatorio, cidade = '________', 
       estimativaTexto: brl(Math.round(relatorio.recuperavelOnline * percentual) / 100),
     },
     consentimento: {
-      aceitoEm: dataHora(lead.consentimento?.aceitoEm),
-      ip: lead.consentimento?.ip || 'não registrado',
-      versaoTermo: lead.consentimento?.versaoTermo || '-',
+      aceitoEm: dataHora(lead.consentimento_lgpd?.data_hora),
+      ip: lead.consentimento_lgpd?.ip_origem || 'não registrado',
+      versaoTermo: lead.consentimento_lgpd?.versao_termo || '-',
     },
     lgpd: { retencaoDias },
   };

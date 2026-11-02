@@ -24,8 +24,8 @@ for (let a = 2021; a <= 2026; a++) for (let m = 1; m <= 12; m++) {
 }
 const r = auditar(comps, { dataBase: '2026-11-02' });
 const relatorio = { ...r, recuperavelOnline: r.recuperavel_online, prejuizoPrescrito: r.prejuizo_prescrito, idempotencyKey: 'k1' };
-const lead = { _id: 'L1', nome: 'Ana Souza', profissao: 'Médica', whatsapp: '5561999990000', cpfEnc: encrypt('12345678901'), consentimento: { versaoTermo: '2026-11', aceitoEm: new Date('2026-11-01T13:00:00Z'), ip: '200.1.2.3' } };
-const contador = { _id: 'C1', escritorio: 'Contábil Alfa', responsavel: 'Carlos Lima', crc: 'CRC-DF 012345/O-1', email: 'c@alfa.com', honorariosPercentual: 35 };
+const lead = { _id: 'L1', nome: 'Ana Souza', profissao: 'Médica', whatsapp: '5561999990000', cpf_cifrado: encrypt('12345678901'), consentimento_lgpd: { versao_termo: '2026-11', data_hora: new Date('2026-11-01T13:00:00Z'), ip_origem: '200.1.2.3' } };
+const contador = { _id: 'C1', nome_escritorio: 'Contábil Alfa', nome_responsavel: 'Carlos Lima', crc: 'CRC-DF 012345/O-1', email: 'c@alfa.com', honorarios_percentual: 35 };
 
 test('alerta ALTA quando a próxima competência prescreve em até 60 dias', () => {
   const a = alertaComercial(relatorio);
@@ -47,7 +47,7 @@ test('payload do webhook não expõe CPF', () => {
   const p = payloadWebhook({ lead, relatorio, contador, painelUrl: 'x' });
   assert.equal(p.evento, 'auditoria.concluida');
   assert.ok(!JSON.stringify(p).includes('12345678901'));
-  assert.ok(!('cpfEnc' in p.lead));
+  assert.ok(!('cpf_cifrado' in p.lead));
 });
 
 test('contrato limita honorários a 30% e mascara o CPF', () => {

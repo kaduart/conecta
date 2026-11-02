@@ -1,48 +1,55 @@
 // Painel do contador (JWT). Aqui aparecem os valores, o contrato e a planilha do PER/DCOMP.
 import { Router } from 'express';
 import { z } from 'zod';
-import { Contador, Lead, Relatorio } from '../models/index.js';
+import { Contador, Lead, RelatorioAuditoria } from '../models/index.js';
 import { config } from '../config.js';
-import { sha256 } from '../services/crypto.js';
+import { conferirSenha } from '../services/senha.js';
 import { gerarContrato } from '../services/contrato.js';
 import { perdcompCsv } from '../services/perdcomp.js';
 import { roteiroCliente, alertaComercial } from '../services/notificacao.js';
+import { relatorioParaApi } from '../engine/mapear.js';
 import { assinarToken, exigirContador, HttpError, wrap } from '../middleware/auth.js';
 
 export const contador = Router();
 
+// Nomes que o front já usa (o banco usa os do briefing)
+const STATUS_FRONT = { CADASTRO: 'QUALIFICADO', CONSENTIDO: 'CONSENTIU', UPLOAD_CONCLUIDO: 'DOCUMENTOS', EM_PROCESSAMENTO: 'PROCESSANDO', PROCESSADO: 'CONCLUIDO', REVISAO_MANUAL: 'ERRO' };
+const statusFront = (s) => STATUS_FRONT[s] || s;
+
 contador.post('/login', wrap(async (req, res) => {
-  const { email, apiKey } = z.object({ email: z.string().email(), apiKey: z.string().min(20) }).parse(req.body);
-  const c = await Contador.findOne({ email: email.toLowerCase(), ativo: true });
-  if (!c || c.apiKeyHash !== sha256(Buffer.from(apiKey))) throw new HttpError(401, 'CREDENCIAIS_INVALIDAS');
-  res.json({ token: assinarToken(c), escritorio: c.escritorio, slugLink: c.slugLink });
+  const body = z.object({ email: z.string().email(), senha: z.string().min(1).optional(), apiKey: z.string().optional() }).parse(req.body);
+  const senha = body.senha ?? body.apiKey; // o front antigo manda "apiKey"
+  const c = await Contador.findOne({ email: body.email.toLowerCase(), status: 'ATIVO' }).select('+password_hash');
+  if (!c || !(await conferirSenha(senha, c.password_hash))) throw new HttpError(401, 'CREDENCIAIS_INVALIDAS');
+  res.json({ token: assinarToken(c), escritorio: c.nome_escritorio, slugLink: c.slug_link });
 }));
 
 contador.use(exigirContador);
 
-async function carregar(req) {
-  const lead = await Lead.findOne({ _id: req.params.id, contadorId: req.contadorId });
+async function carregar(req, extraLead = '') {
+  const lead = await Lead.findOne({ _id: req.params.id, contador_id: req.contadorId }).select(extraLead);
   if (!lead) throw new HttpError(404, 'LEAD_NAO_ENCONTRADO');
-  const relatorio = lead.relatorioId ? await Relatorio.findById(lead.relatorioId).lean() : null;
+  const doc = lead.relatorio_id ? await RelatorioAuditoria.findById(lead.relatorio_id).lean() : null;
   const c = await Contador.findById(req.contadorId);
-  return { lead, relatorio, contador: c };
+  return { lead, relatorio: relatorioParaApi(doc), contador: c };
 }
 
-// Lista: lead | profissão | recuperável | prescrito | prioridade | status. Ordena por recuperável.
 contador.get('/analises', wrap(async (req, res) => {
-  const leads = await Lead.find({ contadorId: req.contadorId }, { cpfEnc: 0, documentos: 0 }).sort({ updatedAt: -1 }).limit(500).lean();
-  const rels = await Relatorio.find({ leadId: { $in: leads.map((l) => l._id) } }).lean();
-  const porLead = new Map(rels.map((r) => [String(r.leadId), r]));
+  const leads = await Lead.find({ contador_id: req.contadorId }, { documentos: 0 }).sort({ updatedAt: -1 }).limit(500).lean();
+  const rels = await RelatorioAuditoria.find({ lead_id: { $in: leads.map((l) => l._id) } }, { cronograma_mensal: 0 }).lean();
+  const porLead = new Map(rels.map((r) => [String(r.lead_id), r]));
   const itens = leads.map((l) => {
     const r = porLead.get(String(l._id));
+    const g = r?.gatilhos_detectados;
     return {
-      id: l._id, nome: l.nome, profissao: l.profissao, whatsapp: l.whatsapp, status: l.status, atualizadoEm: l.updatedAt,
-      recuperavelOnline: r?.recuperavelOnline ?? null,
-      prejuizoPrescrito: r?.prejuizoPrescrito ?? null,
-      confianca: r?.confianca ?? null,
-      diasParaPrescrever: r?.gatilhos?.diasParaPrescrever ?? null,
-      prioridade: r ? alertaComercial(r).prioridade : null,
-      copiaPendente: (l.solicitacoesTitular || []).some((s) => s.tipo === 'COPIA' && !s.atendidaEm),
+      id: l._id, nome: l.nome, profissao: l.profissao, whatsapp: l.whatsapp, status: statusFront(l.status_jornada), atualizadoEm: l.updatedAt,
+      recuperavelOnline: r?.resumo_financeiro.total_recuperavel ?? null,
+      prejuizoPrescrito: r?.resumo_financeiro.total_prescrito_perdido ?? null,
+      confianca: r ? (r.resumo_financeiro.grau_confianca === 'ALTO' ? 'COMPROVADO' : 'ESTIMADO') : null,
+      grauConfianca: r?.resumo_financeiro.grau_confianca ?? null,
+      diasParaPrescrever: g?.dias_para_prescrever ?? null,
+      prioridade: r ? alertaComercial({ gatilhos: { diasParaPrescrever: g.dias_para_prescrever }, alertas: [] }).prioridade : null,
+      copiaPendente: (l.solicitacoes_titular || []).some((s) => s.tipo === 'COPIA' && !s.atendida_em),
     };
   }).sort((a, b) => (b.recuperavelOnline ?? -1) - (a.recuperavelOnline ?? -1));
   const totais = itens.reduce((t, i) => ({ recuperavel: t.recuperavel + (i.recuperavelOnline || 0), leads: t.leads + 1 }), { recuperavel: 0, leads: 0 });
@@ -52,7 +59,11 @@ contador.get('/analises', wrap(async (req, res) => {
 contador.get('/analises/:id', wrap(async (req, res) => {
   const { lead, relatorio, contador: c } = await carregar(req);
   res.json({
-    lead: { id: lead._id, nome: lead.nome, profissao: lead.profissao, whatsapp: lead.whatsapp, status: lead.status, consentimento: lead.consentimento, documentos: lead.documentos.map((d) => ({ tipo: d.tipo, status: d.status, erro: d.erro })) },
+    lead: {
+      id: lead._id, nome: lead.nome, profissao: lead.profissao, whatsapp: lead.whatsapp, status: statusFront(lead.status_jornada),
+      consentimento: { aceito: lead.consentimento_lgpd?.aceito, aceitoEm: lead.consentimento_lgpd?.data_hora, ip: lead.consentimento_lgpd?.ip_origem, versaoTermo: lead.consentimento_lgpd?.versao_termo },
+      documentos: lead.documentos.map((d) => ({ tipo: d.tipo, status: d.status, erro: d.erro })),
+    },
     relatorio,
     alertaComercial: relatorio ? alertaComercial(relatorio) : null,
     roteiro: relatorio ? roteiroCliente({ lead, relatorio, contador: c }) : null,
@@ -60,10 +71,10 @@ contador.get('/analises/:id', wrap(async (req, res) => {
 }));
 
 contador.get('/analises/:id/contrato', wrap(async (req, res) => {
-  const { lead, relatorio, contador: c } = await carregar(req);
+  const { lead, relatorio, contador: c } = await carregar(req, '+cpf_cifrado');
   if (!relatorio) throw new HttpError(409, 'RELATORIO_PENDENTE');
   const md = gerarContrato({ lead, contador: c, relatorio, cidade: req.query.cidade, retencaoDias: config.retencaoDias });
-  if (lead.status === 'CONCLUIDO') { lead.status = 'CONTRATO_ENVIADO'; await lead.save(); }
+  if (lead.status_jornada === 'PROCESSADO') { lead.status_jornada = 'CONTRATO_ENVIADO'; await lead.save(); }
   res.type('text/markdown; charset=utf-8').send(md);
 }));
 
@@ -76,15 +87,14 @@ contador.get('/analises/:id/perdcomp.csv', wrap(async (req, res) => {
 contador.patch('/analises/:id/status', wrap(async (req, res) => {
   const { status } = z.object({ status: z.enum(['CONTRATO_ENVIADO', 'PROTOCOLADO']) }).parse(req.body);
   const { lead } = await carregar(req);
-  lead.status = status;
+  lead.status_jornada = status;
   await lead.save();
   res.json({ status });
 }));
 
-// Marca a cópia ao titular como entregue (LGPD)
 contador.post('/analises/:id/copia-entregue', wrap(async (req, res) => {
   const { lead } = await carregar(req);
-  for (const s of lead.solicitacoesTitular) if (s.tipo === 'COPIA' && !s.atendidaEm) s.atendidaEm = new Date();
+  for (const s of lead.solicitacoes_titular) if (s.tipo === 'COPIA' && !s.atendida_em) s.atendida_em = new Date();
   await lead.save();
   res.json({ ok: true });
 }));

@@ -5,8 +5,8 @@ Auditoria de INSS pago acima do teto por quem tem mais de um vínculo, com presc
 ## Estrutura
 - `server/`: Node 20 + Express + MongoDB/Mongoose + Redis/BullMQ
   - `src/engine/`: motor de cálculo (`params.js` com teto, faixas e cota máxima por vigência; `teto.js` com `auditar()`)
-  - `src/parsers/`: PDF → texto → JSON (CNIS e informe de rendimentos)
-  - `src/models/`: Contador, Lead, Relatorio
+  - `src/parsers/`: PDF → texto → JSON (CNIS e informe de rendimentos), mais `validador.js` com o score de confiança (abaixo de 70, o lead vai para `REVISAO_MANUAL`)
+  - `src/models/`: `Contador.js`, `Lead.js` e `RelatorioAuditoria.js` (coleções `contadores`, `leads` e `relatorios_auditoria`)
   - `src/routes/`: `publico.js` (fluxo do cliente) e `contador.js` (painel, JWT)
   - `src/queues/`: filas `processar-auditoria`, `notificar-contador`, `limpeza-lgpd` (5 tentativas, backoff exponencial, jobId idempotente)
   - `src/services/`: criptografia AES-256-GCM, storage, WhatsApp (Evolution/Z-API), webhook com HMAC, contrato, CSV do PER/DCOMP
@@ -19,7 +19,7 @@ cd server && cp .env.example .env    # preencher JWT_SECRET e ENC_KEY
 npm install && npm test              # 13 testes
 npm run dev                          # API em :4000
 npm run worker                       # outro terminal
-node scripts/seed-contador.js "Silva & Associados" "Carlos Silva" "CRC-DF 012345/O-1" carlos@silva.com 5561999990000 silva
+node scripts/seed-contador.js "Silva & Associados" "Carlos Silva" "CRC-DF 012345/O-1" carlos@silva.com 5561999990000 silva "senha-com-10-ou-mais"
 cd ../web && cp .env.example .env && npm install && npm run dev   # :5173
 ```
 Cliente: `http://localhost:5173/c/silva` · Contador: `http://localhost:5173/painel/login`
@@ -34,7 +34,7 @@ Cliente: `http://localhost:5173/c/silva` · Contador: `http://localhost:5173/pai
 | POST | `/leads/:id/process` | X-Lead-Token | enfileira a auditoria (chave = hash dos docs + versão do motor) |
 | GET | `/leads/:id/status` | X-Lead-Token | status + `indicio` (sem valores) |
 | POST | `/leads/:id/copia-relatorio` | X-Lead-Token | pedido do titular (LGPD), prazo de 15 dias |
-| POST | `/contador/login` | — | e-mail + chave → JWT 12h |
+| POST | `/contador/login` | — | e-mail + senha (scrypt) → JWT 12h |
 | GET | `/contador/analises` | Bearer | lista ordenada por recuperável, com prioridade |
 | GET | `/contador/analises/:id` | Bearer | relatório completo, alerta comercial e roteiro |
 | GET | `/contador/analises/:id/contrato` | Bearer | contrato preenchido (Markdown) |
