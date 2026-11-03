@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
-import { Aviso, Icone, Tela } from '../components/ui.jsx';
+import { Aviso, BlocoEditorial, Icone, Tela } from '../components/ui.jsx';
+import { FOTO_RESULTADO } from '../lib/imagens.js';
 import { proximaPrescricao } from '../lib/prazo.js';
 import Regua from '../components/Regua.jsx';
 
@@ -23,17 +24,19 @@ export default function Concluido() {
 
   const editorial = (
     <>
+      <BlocoEditorial foto={FOTO_RESULTADO} className="min-h-[460px] lg:min-h-[520px]" fotoPos="center 25%">
       <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-esmeralda/15 text-esmeralda-texto" aria-hidden>
         <Icone nome="check" className="h-6 w-6" />
       </span>
-      <h1 className="titulo-hero mt-6 max-w-[14ch]">{comIndicio ? 'Há indício de INSS a recuperar.' : 'Análise concluída.'}</h1>
-      <p className="mt-5 max-w-[44ch] text-lg leading-relaxed text-apoio">
+      <h1 className="titulo-hero max-w-[14ch]">{comIndicio ? 'Há indício de INSS a recuperar.' : 'Análise concluída.'}</h1>
+      <p className="max-w-[44ch] text-base font-light leading-relaxed text-apoio lg:text-lg">
         {comIndicio
           ? 'Encontramos meses com desconto acima do teto. Esse valor pode ser pedido de volta à Receita Federal.'
           : 'Não encontramos desconto acima do teto nos documentos enviados. Seu contador pode revisar com outros comprovantes.'}
       </p>
+      </BlocoEditorial>
       {comIndicio && (
-        <div className="mt-10 rounded-xl border border-amber-200/40 bg-amber-50/40 p-8 text-amber-900 backdrop-blur-xl sm:p-10">
+        <div className="mt-6 rounded-xl border border-amber-200/40 bg-amber-50/40 p-8 text-amber-900 backdrop-blur-xl sm:p-10">
           <p className="font-titulo text-[28px] font-medium leading-tight">{quando}, {prazo.competencia} sai do prazo.</p>
           <p className="mt-2 text-[15px] leading-relaxed text-amber-900/80">Todo dia 20, o mês mais antigo deixa de poder ser pedido de volta.</p>
           <Regua className="mt-8" compacta />
