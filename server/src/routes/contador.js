@@ -66,6 +66,20 @@ contador.patch('/senha', wrap(async (req, res) => {
   res.json({ ok: true });
 }));
 
+// Troca o final do link de convite (/c/:slug). O link antigo deixa de funcionar.
+const SLUGS_RESERVADOS = new Set(['demo', 'painel', 'api', 'admin', 'www']);
+contador.patch('/link', wrap(async (req, res) => {
+  const { slug } = z.object({ slug: z.string().min(1).max(80) }).parse(req.body);
+  const novo = gerarSlug(slug);
+  if (!/^[a-z0-9-]{3,40}$/.test(novo) || SLUGS_RESERVADOS.has(novo)) {
+    throw new HttpError(422, 'VALIDACAO', { campos: { slug: ['Use de 3 a 40 letras, números ou hífen'] } });
+  }
+  const dono = await Contador.findOne({ slug_link: novo }, { _id: 1 }).lean();
+  if (dono && String(dono._id) !== String(req.contadorId)) throw new HttpError(409, 'LINK_EM_USO');
+  await Contador.updateOne({ _id: req.contadorId }, { $set: { slug_link: novo } });
+  res.json({ slugLink: novo });
+}));
+
 async function carregar(req, extraLead = '') {
   const lead = await Lead.findOne({ _id: req.params.id, contador_id: req.contadorId }).select(extraLead);
   if (!lead) throw new HttpError(404, 'LEAD_NAO_ENCONTRADO');

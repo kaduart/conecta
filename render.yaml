@@ -22,7 +22,7 @@ services:
       - key: ENC_KEY            # 256 bits em base64 (AES-256-GCM)
         generateValue: true
       - key: WEB_ORIGIN
-        value: https://recupera-taupe.vercel.app
+        value: https://recupera-inss.vercel.app,https://recupera-taupe.vercel.app
       - key: WORKER_EMBUTIDO
         value: "1"
       - key: REDIS_URL

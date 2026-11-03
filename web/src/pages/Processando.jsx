@@ -46,7 +46,7 @@ export default function Processando() {
 
   const editorial = (
     <>
-      <p className="font-titulo text-[88px] font-medium leading-none tracking-tight text-esmeralda-texto tabular-nums sm:text-[120px]">{pct}%</p>
+      <p className="font-titulo text-[88px] font-normal leading-none tracking-tight text-esmeralda-texto tabular-nums sm:text-[120px]">{pct}%</p>
       <h1 className="titulo mt-6 max-w-[16ch]">Analisando mês a mês as suas contribuições.</h1>
       <p className="mt-4 text-lg text-apoio">Leva de 30 a 90 segundos. Pode manter a tela aberta.</p>
     </>
@@ -57,7 +57,7 @@ export default function Processando() {
       <div className="h-[2px] w-full rounded-full bg-grafite/6">
         <div className="fio-brilho h-full rounded-full bg-esmeralda transition-[width] duration-500 ease-out" style={{ width: `${pct}%` }} />
       </div>
-      <ol className="vidro mt-8 space-y-5 p-8 sm:p-10">
+      <ol className="card-acao mt-8 space-y-5 p-8 sm:p-10">
         {ETAPAS.map((e, i) => {
           const feito = i < atual || pct === 100; const ativo = i === atual && pct < 100;
           return (

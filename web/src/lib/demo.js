@@ -91,6 +91,7 @@ export const demoApi = {
     return { token: 'demo', escritorio: CONTADOR.nome_escritorio, slugLink: CONTADOR.slug_link };
   },
   async primeiroAcessoDisponivel() { return { disponivel: false }; },
+  async trocarLink() { throw erro('DEMO', 'Indisponível no modo demonstração.'); },
   async trocarSenha() { throw erro('DEMO', 'Indisponível no modo demonstração.'); },
   async primeiroAcesso() { throw erro('PRIMEIRO_ACESSO_ENCERRADO', 'Indisponível no modo demonstração.'); },
   async analises() {

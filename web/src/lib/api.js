@@ -26,6 +26,7 @@ const MENSAGENS = {
   VALIDACAO: 'Confira os campos destacados.',
   CREDENCIAIS_INVALIDAS: 'E-mail ou senha incorretos.',
   SENHA_ATUAL_INCORRETA: 'A senha atual não confere.',
+  LINK_EM_USO: 'Esse link já é de outro escritório. Tente outro nome.',
   TOKEN_INVALIDO: 'Sua sessão expirou. Entre de novo.',
   PRIMEIRO_ACESSO_ENCERRADO: 'O primeiro acesso já foi feito. Entre com e-mail e senha.',
 };
@@ -65,6 +66,7 @@ const apiReal = {
   contrato: (id) => req(`/contador/analises/${id}/contrato`, { auth: 'contador' }),
   mudarStatus: (id, status) => req(`/contador/analises/${id}/status`, { metodo: 'PATCH', corpo: { status }, auth: 'contador' }),
   trocarSenha: (corpo) => req('/contador/senha', { metodo: 'PATCH', corpo, auth: 'contador' }),
+  trocarLink: (slug) => req('/contador/link', { metodo: 'PATCH', corpo: { slug }, auth: 'contador' }),
   copiaEntregue: (id) => req(`/contador/analises/${id}/copia-entregue`, { metodo: 'POST', auth: 'contador' }),
   async baixarCsv(id) {
     const res = await fetch(`${BASE}/contador/analises/${id}/perdcomp.csv`, { headers: { Authorization: `Bearer ${sessaoContador.get()?.token}` } });

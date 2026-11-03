@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
-import { Aviso, Carregando, Tela } from '../components/ui.jsx';
+import { Aviso, BlocoEditorial, Carregando, Passos, SelosConfianca, Tela } from '../components/ui.jsx';
+import { FOTO_CLIENTE } from '../lib/imagens.js';
 import Regua from '../components/Regua.jsx';
 import { proximaPrescricao } from '../lib/prazo.js';
 
@@ -44,23 +45,26 @@ export default function Convite() {
 
   const editorial = (
     <>
+    <BlocoEditorial foto={FOTO_CLIENTE} className="min-h-[470px] sm:min-h-[520px] lg:min-h-[560px]" fotoClassName="h-[70%] lg:h-[66%]" fotoPos="center 22%">
       {convite && <p className="text-[15px] text-apoio">Convite de {convite.escritorio}, {/^crc/i.test(convite.crc) ? convite.crc : `CRC ${convite.crc}`}</p>}
-      <h1 className="titulo-hero mt-4 max-w-[14ch]">Seu INSS pago a mais tem prazo para voltar.</h1>
-      <p className="mt-5 max-w-[44ch] text-lg leading-relaxed text-apoio">
+      <h1 className="font-titulo text-4xl font-normal leading-[1.08] tracking-tight text-grafite sm:text-5xl lg:text-6xl">Seu <em className="relative inline-block font-semibold italic text-esmeralda-escuro">INSS<span aria-hidden className="absolute inset-x-[-0.06em] bottom-[0.08em] -z-10 h-[0.32em] rounded-sm bg-esmeralda-brilho/45" /></em> pago a mais<br className="hidden sm:block" /> tem prazo para voltar.</h1>
+      <p className="max-w-[44ch] text-base font-light leading-relaxed text-apoio lg:text-lg">
         Quem trabalha em mais de uma empresa, cooperativa ou hospital costuma contribuir acima do teto. O excesso dos últimos 5 anos pode ser pedido de volta.
       </p>
-      <Regua className="mt-10 lg:mt-14" compacta />
-      <NotaPrazo />
+    </BlocoEditorial>
+    <Regua className="mt-2" compacta />
+    <NotaPrazo />
     </>
   );
 
   return (
-    <Tela lateral={editorial} rodape="Leva cerca de 5 minutos. Não pedimos sua senha do gov.br.">
+    <Tela lateral={editorial} rodape="Leva cerca de 5 minutos.">
       {convite && (
-        <form onSubmit={enviar} className="cartao space-y-6 p-7 sm:p-10" noValidate>
+        <form onSubmit={enviar} className="card-acao space-y-6 p-7 sm:p-10" noValidate>
           <div>
             <h2 className="font-titulo text-2xl font-medium">Começar a análise</h2>
             <p className="mt-1 text-[15px] text-apoio">Seu contador recebe o resultado.</p>
+            <div className="mt-4"><Passos atual={1} /></div>
           </div>
           <div>
             <label className="rotulo" htmlFor="nome">Nome</label>
@@ -82,6 +86,7 @@ export default function Convite() {
           </div>
           <Aviso>{erro}</Aviso>
           <button className="btn-primario" disabled={!valido || enviando}>{enviando ? 'Enviando…' : 'Começar a análise'}</button>
+          <SelosConfianca />
         </form>
       )}
       {!convite && <Aviso>{erro}</Aviso>}
@@ -98,3 +103,4 @@ function NotaPrazo() {
     </p>
   );
 }
+

@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { api, sessaoLead } from '../lib/api.js';
-import { Aviso, Icone, Tela } from '../components/ui.jsx';
+import { ArrowRight } from 'lucide-react';
+import { Aviso, BlocoEditorial, Icone, SelosConfianca, Tela } from '../components/ui.jsx';
+import { FOTO_DOCUMENTOS } from '../lib/imagens.js';
 
 const BLOCOS = [
   { tipo: 'CNIS', titulo: 'Extrato CNIS', ajuda: 'Baixe o PDF em 1 minuto no app Meu INSS', multiplo: false, obrigatorio: true },
@@ -24,7 +26,7 @@ function Bloco({ bloco, arquivos, onChange }) {
     ? 'border border-esmeralda/30 bg-esmeralda/4'
     : sobre
       ? 'border border-dashed border-esmeralda/60 bg-white/70 shadow-neon'
-      : 'border border-dashed border-emerald-500/20 bg-white/10 hover:border-esmeralda/40 hover:bg-white/50';
+      : 'border border-white/70 bg-white/40 hover:bg-white/70';
   return (
     <div
       onDragOver={(e) => { e.preventDefault(); setSobre(true); }}
@@ -81,21 +83,25 @@ export default function Upload() {
   }
 
   const editorial = (
-    <>
-      <h1 className="titulo-hero max-w-[14ch]">Três PDFs e a conta está feita.</h1>
-      <p className="mt-5 max-w-[44ch] text-lg leading-relaxed text-apoio">O CNIS mostra quanto cada empresa recolheu por mês. Os informes confirmam os valores. O IRPF é opcional.</p>
-      <p className="mt-6"><a className="link text-[15px]" href="https://meu.inss.gov.br" target="_blank" rel="noreferrer">Como baixar o CNIS no Meu INSS</a></p>
-    </>
+    <BlocoEditorial foto={FOTO_DOCUMENTOS}>
+      <h1 className="font-titulo text-4xl font-normal leading-[1.1] tracking-tight text-grafite lg:text-5xl">Três PDFs e a<br />conta está feita.</h1>
+      <p className="text-base font-light leading-relaxed text-apoio lg:text-lg">O CNIS mostra quanto cada empresa recolheu por mês. Os informes confirmam os valores. O IRPF é opcional.</p>
+      <a href="https://meu.inss.gov.br" target="_blank" rel="noreferrer" className="group inline-flex items-center text-sm font-medium text-esmeralda-texto transition-colors duration-200 hover:text-esmeralda">
+        Como baixar o CNIS no Meu INSS
+        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" strokeWidth={1.5} />
+      </a>
+    </BlocoEditorial>
   );
 
   return (
     <Tela etapa="Etapa 2 de 3" lateral={editorial}>
-      <div className="cartao space-y-4 p-6 sm:p-10">
+      <div className="card-acao space-y-4 p-6 sm:p-10">
         {BLOCOS.map((b) => <Bloco key={b.tipo} bloco={b} arquivos={arquivos[b.tipo]} onChange={(l) => definir(b.tipo, l)} />)}
         <div className="space-y-3 pt-4">
           <Aviso>{erro}</Aviso>
           <button className="btn-primario" disabled={!pronto || enviando} onClick={enviar}>{enviando ? 'Enviando com criptografia…' : 'Enviar para análise'}</button>
           {!pronto && <p className="text-center text-[14px] font-light text-apoio">Falta anexar o CNIS e os informes.</p>}
+          <SelosConfianca />
         </div>
       </div>
     </Tela>

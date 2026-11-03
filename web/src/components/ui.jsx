@@ -1,4 +1,5 @@
-import { Eye, Clock, ShieldCheck, FileText, Check, Upload } from 'lucide-react';
+import { useState } from 'react';
+import { Eye, Clock, ShieldCheck, FileText, Check, Upload, Lock, KeyRound } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function Marca({ className = '' }) {
@@ -19,12 +20,12 @@ export function Tela({ etapa, children, rodape, lateral }) {
     <main className={`seguro mx-auto flex min-h-dvh w-full flex-col px-5 sm:px-8 ${largo ? 'max-w-6xl' : 'max-w-md sm:max-w-lg'}`}>
       <header className="flex items-center justify-between py-4">
         <Marca />
-        {etapa ? <span className="text-sm text-apoio tabular-nums">{etapa}</span> : <Selo />}
+        {etapa ? <Etapas texto={etapa} /> : <Selo />}
       </header>
       {largo ? (
-        <div className="grid flex-1 gap-10 pt-8 lg:grid-cols-12 lg:items-center lg:gap-16 lg:pt-0">
-          <div className="lg:col-span-7">{lateral}</div>
-          <div className="lg:col-span-5">{children}</div>
+        <div className="grid flex-1 grid-cols-1 gap-10 pt-8 lg:grid-cols-12 lg:items-center lg:gap-16 lg:pt-0">
+          <div className="min-w-0 lg:col-span-7">{lateral}</div>
+          <div className="min-w-0 lg:col-span-5">{children}</div>
         </div>
       ) : (
         <div className="flex flex-1 flex-col pt-8">{children}</div>
@@ -62,4 +63,104 @@ const ICONES = { olho: Eye, relogio: Clock, escudo: ShieldCheck, documento: File
 export function Icone({ nome, className = 'h-5 w-5' }) {
   const C = ICONES[nome] || Check;
   return <C className={className} strokeWidth={1.5} aria-hidden />;
+}
+
+/** Foto editorial com moldura e véu suave; some sozinha se a imagem não carregar. */
+export function Foto({ src, alt = '', className = '', children }) {
+  const [ok, setOk] = useState(true);
+  if (!ok) return null;
+  return (
+    <figure className={`relative overflow-hidden rounded-2xl bg-grafite/5 shadow-[0_30px_60px_-24px_rgba(31,42,46,0.35)] ${className}`}>
+      <img src={src} alt={alt} onError={() => setOk(false)} className="absolute inset-0 h-full w-full object-cover" decoding="async" />
+      <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-grafite/45 via-transparent to-transparent" />
+      {children}
+    </figure>
+  );
+}
+
+/** "Etapa 2 de 3" com três traços: feitos em esmeralda, o atual em grafite. */
+function Etapas({ texto }) {
+  const [, atual, total] = String(texto).match(/(\d+)\s*de\s*(\d+)/) || [];
+  return (
+    <span className="flex items-center gap-3 text-sm text-apoio tabular-nums">
+      {total && (
+        <span className="flex gap-1" aria-hidden>
+          {Array.from({ length: Number(total) }, (_, i) => (
+            <span key={i} className={`h-1 w-6 rounded-full ${i + 1 < atual ? 'bg-esmeralda' : i + 1 == atual ? 'bg-grafite' : 'bg-grafite/15'}`} />
+          ))}
+        </span>
+      )}
+      {texto}
+    </span>
+  );
+}
+
+/** Foto que se dissolve no fundo: opacidade baixa e máscara nas bordas, sem moldura. */
+export function FotoEsmaecida({ src, className = 'h-56 sm:h-72 lg:h-80', posicao = 'center 30%' }) {
+  const [ok, setOk] = useState(true);
+  if (!ok) return null;
+  // Duas máscaras lineares cruzadas: some por cima, por baixo e pelas laterais, sem borda de caixa.
+  const mascara = 'linear-gradient(to bottom, transparent, #000 35%, #000 62%, transparent), linear-gradient(to right, transparent, #000 30%, #000 75%, transparent)';
+  return (
+    <div aria-hidden className={`pointer-events-none relative mt-8 overflow-hidden lg:mt-10 ${className}`}>
+      <img src={src} alt="" onError={() => setOk(false)} decoding="async"
+        className="h-full w-full object-cover opacity-80 saturate-[.9]"
+        style={{ objectPosition: posicao, maskImage: mascara, WebkitMaskImage: mascara, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }} />
+    </div>
+  );
+}
+
+const MASCARA_FUNDO = {
+  maskImage: 'linear-gradient(to bottom, transparent, #000 35%, #000 60%, transparent), linear-gradient(to right, transparent, #000 22%, #000 78%, transparent)',
+  WebkitMaskImage: 'linear-gradient(to bottom, transparent, #000 35%, #000 60%, transparent), linear-gradient(to right, transparent, #000 22%, #000 78%, transparent)',
+  maskComposite: 'intersect',
+  WebkitMaskComposite: 'source-in',
+};
+
+/**
+ * Bloco editorial da esquerda: o texto flutua (z-10) e a foto fica de fundo, absoluta,
+ * fundida ao off-white por máscara. `rodape` fica embaixo, por cima da foto.
+ */
+export function BlocoEditorial({ foto, children, rodape, className = 'min-h-[480px] sm:min-h-[540px] lg:min-h-[660px]', fotoClassName = 'h-[62%] lg:h-[58%]', fotoPos = 'top' }) {
+  const [ok, setOk] = useState(true);
+  return (
+    <div className={`relative isolate flex flex-col justify-between ${className}`}>
+      <div aria-hidden className="absolute -left-10 -top-10 -z-10 h-72 w-72 rounded-full bg-esmeralda-brilho/10 blur-[120px]" />
+      <div className="relative z-10 max-w-xl space-y-6">{children}</div>
+      {rodape && <div className="relative z-10 mt-10">{rodape}</div>}
+      {foto && ok && (
+        <div aria-hidden className={`pointer-events-none absolute inset-x-0 bottom-0 -z-10 opacity-85 ${fotoClassName}`}>
+          <img src={foto} alt="" onError={() => setOk(false)} decoding="async" className="h-full w-full object-cover" style={{ ...MASCARA_FUNDO, objectPosition: fotoPos }} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Três garantias que o cliente quer ler antes de clicar. Fica logo abaixo do botão principal. */
+export function SelosConfianca() {
+  const itens = [[Lock, 'Criptografado'], [ShieldCheck, 'LGPD'], [KeyRound, 'Sem senha do gov.br']];
+  return (
+    <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[13px] text-apoio">
+      {itens.map(([I, t]) => (
+        <li key={t} className="inline-flex items-center gap-1.5"><I className="h-3.5 w-3.5 text-esmeralda-texto" strokeWidth={1.5} />{t}</li>
+      ))}
+    </ul>
+  );
+}
+
+/** Os três passos do fluxo, com o atual em destaque. */
+export function Passos({ atual = 1 }) {
+  const passos = ['Seus dados', '3 PDFs', 'Resultado'];
+  return (
+    <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
+      {passos.map((p, i) => (
+        <li key={p} className="inline-flex items-center gap-2">
+          <span className={`grid h-5 w-5 place-items-center rounded-full text-[11px] font-semibold tabular-nums ${i + 1 === atual ? 'bg-grafite text-white' : i + 1 < atual ? 'bg-esmeralda text-esmeralda-tinta' : 'bg-grafite/[0.07] text-apoio'}`}>{i + 1}</span>
+          <span className={i + 1 === atual ? 'font-medium text-grafite' : 'text-apoio'}>{p}</span>
+          {i < passos.length - 1 && <span aria-hidden className="h-px w-4 bg-grafite/15" />}
+        </li>
+      ))}
+    </ol>
+  );
 }

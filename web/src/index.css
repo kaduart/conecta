@@ -69,11 +69,11 @@
 }
 
 @utility titulo {
-  @apply font-titulo text-[36px] font-medium leading-[1.08] tracking-tight text-grafite sm:text-[44px];
+  @apply font-titulo text-[36px] font-normal leading-[1.08] tracking-tight text-grafite sm:text-[44px];
 }
 
 @utility titulo-hero {
-  @apply font-titulo text-[40px] font-medium leading-[1.04] tracking-tight text-grafite sm:text-[56px] lg:text-[64px];
+  @apply font-titulo text-4xl font-normal leading-[1.08] tracking-tight text-grafite sm:text-5xl lg:text-6xl;
 }
 
 @utility btn {
@@ -118,3 +118,8 @@
 .regua-traco { transform-origin: bottom; animation: traco 420ms cubic-bezier(.2,.8,.2,1) both; }
 @keyframes alerta { 0%, 100% { opacity: 1 } 50% { opacity: .35 } }
 .regua-primeiro { animation: traco 420ms cubic-bezier(.2,.8,.2,1) both, alerta 1.6s ease-in-out 900ms 2; }
+
+/* Card onde o cliente age: vidro líquido mais denso, igual em todas as telas do fluxo. */
+@utility card-acao {
+  @apply rounded-xl border border-white/60 bg-white/50 shadow-[0_25px_50px_-12px_rgba(31,42,46,0.08)] backdrop-blur-xl;
+}
